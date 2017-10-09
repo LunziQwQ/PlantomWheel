@@ -9,11 +9,12 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
+    public void start(Stage welcomeStage) throws Exception{
+        Parent root = FXMLLoader.load(getClass().getResource("WelcomeForm.fxml"));
+        welcomeStage.setTitle("Welcome to PlantomWheel v1.0");
+        welcomeStage.setScene(new Scene(root, 600, 400));
+        welcomeStage.setResizable(false);   //禁止用户更改窗口大小
+        welcomeStage.show();
     }
 
 

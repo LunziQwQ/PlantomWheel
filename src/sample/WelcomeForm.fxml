@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.WelcomeFormController">
+   <children>
+      <Text fx:id="welcome" layoutX="52.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome">
+         <font>
+            <Font name="Consolas" size="64.0" />
+         </font>
+      </Text>
+      <Text layoutX="52.0" layoutY="147.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PlantomWheel v1.0">
+         <font>
+            <Font name="Consolas" size="32.0" />
+         </font>
+      </Text>
+      <Text layoutX="52.0" layoutY="191.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A Plantom Go AI Program">
+         <font>
+            <Font size="32.0" />
+         </font>
+      </Text>
+      <Hyperlink layoutX="528.0" layoutY="375.0" onMouseClicked="#githubRepoOnClick" text="Github repo" />
+      <Hyperlink layoutX="431.0" layoutY="375.0" onMouseClicked="#authorOnClick" text="Made by Lunzi" />
+      <Button layoutX="50.0" layoutY="233.0" mnemonicParsing="false" onMouseClicked="#blackPlayerOnClick" prefHeight="100.0" prefWidth="200.0" text="Black Player">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+      <Button layoutX="350.0" layoutY="233.0" mnemonicParsing="false" onMouseClicked="#whitePlayerOnClick" prefHeight="100.0" prefWidth="200.0" text="White Player">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
