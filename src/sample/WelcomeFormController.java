@@ -26,24 +26,22 @@ public class WelcomeFormController {
 	private Text welcome;
 	
 	@FXML
-	public void githubRepoOnClick(){
+	void githubRepoOnClick(){
 		openUrlWithBrowse("https://github.com/LunziQwQ/PlantomWheel");
 	}
 	
 	@FXML
-	public void authorOnClick(){
+	void authorOnClick(){
 		openUrlWithBrowse("http://www.lunzi.pw/");
 	}
 	
 	@FXML
-	public void blackPlayerOnClick(){
-		System.out.println("play black");
+	void blackPlayerOnClick(){
 		gameStart(true);
 	}
 	
 	@FXML
-	public void whitePlayerOnClick(){
-		System.out.println("play white");
+	void whitePlayerOnClick(){
 		gameStart(false);
 	}
 	
@@ -67,9 +65,11 @@ public class WelcomeFormController {
 			gameStage.setTitle("PlantomWheel --" + (isBlackPlayer ? "black" : "white") + " player");
 			gameStage.setResizable(false);   //禁止用户更改窗口大小
 			gameStage.show();
-			Stage welcomeStage = (Stage) welcome.getScene().getWindow();
-			welcomeStage.close();
+			Main.isBlackPlayer = isBlackPlayer;
+//			Stage welcomeStage = (Stage) welcome.getScene().getWindow();
+//			welcomeStage.close();
 		} catch (IOException ioe) {
+			ioe.printStackTrace();
 			Alert alert = new Alert(Alert.AlertType.WARNING);
 			alert.setHeaderText("IOException:");
 			alert.setContentText(ioe.getMessage());

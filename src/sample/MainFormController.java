@@ -1,18 +1,35 @@
 package sample;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+
 public class MainFormController {
+	static StringProperty stepCount = new SimpleStringProperty();
+	
 	
 	@FXML
 	private AnchorPane chessboard;
 	
+	@FXML
+	private Label stepCountLabel;
 	
 	@FXML
-	public void initialize(){
+	private TextArea console;
+	
+	@FXML
+	void getStepOnClick(){
+	}
+	
+	public void initialize() {
 		drawChessBoard();
+		stepCountLabel.textProperty().bind(stepCount);
+		//TODO：重构原先的GameEngine类以及交互方法
 	}
 	
 	private void drawChessBoard() {
@@ -33,8 +50,9 @@ public class MainFormController {
 		for (int i = 0; i < 9; i++) {
 			Line line = new Line(margin + lineSpacing * i, margin, margin + lineSpacing * i, margin + 500);
 			Text text = new Text(margin + lineSpacing * i - textOffset, textMargin + 2 * textOffset, String.valueOf((char) (i + 'A')));
-			chessboard.getChildren().addAll(line,text);
+			chessboard.getChildren().addAll(line, text);
 		}
 	}
+	
 	
 }
