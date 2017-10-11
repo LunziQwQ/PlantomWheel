@@ -66,8 +66,8 @@ public class WelcomeFormController {
 			gameStage.setResizable(false);   //禁止用户更改窗口大小
 			gameStage.show();
 			Main.isBlackPlayer = isBlackPlayer;
-//			Stage welcomeStage = (Stage) welcome.getScene().getWindow();
-//			welcomeStage.close();
+			Stage welcomeStage = (Stage) welcome.getScene().getWindow();
+			welcomeStage.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 			Alert alert = new Alert(Alert.AlertType.WARNING);
