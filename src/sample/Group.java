@@ -15,6 +15,7 @@ class Group {
 	static List<Group> groups = new ArrayList<>();
 	int health = 0;
 	char status = 'e';
+	boolean needUpdate = false;
 	
 	List<Chess> chesses = new ArrayList<>();
 	List<Chess> libertys = new ArrayList<>();        //该棋子组的气
@@ -75,7 +76,7 @@ class Group {
 	}
 	
 	void merge(Group group) {
-		group.chesses.forEach(this::addChess);
+		group.chesses.addAll(chesses);
 		Group.groups.remove(group);
 	}
 	

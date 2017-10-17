@@ -26,7 +26,7 @@ class Strategies {
 
 	private Random random = new Random(new Date().getTime());
 
-	private boolean offensiveFlag = false;
+	boolean offensiveFlag = false;
 
 	private Coord[] staticStart = new Coord[6];
 
@@ -66,11 +66,11 @@ class Strategies {
 			}
 		}
 
-		if (GameEngine.stepCount > 30) {
-			temp = defensive();
-			if (temp != null) return temp;
-			else return fuzzy();
-		}
+//		if (GameEngine.stepCount > 30) {
+//			temp = defensive();
+//			if (temp != null) return temp;
+//			else return fuzzy();
+//		}
 
 		return fuzzy();
 
@@ -199,17 +199,17 @@ class Strategies {
 			for (Chess item : x) {
 				if (item.status == 'e') {
 					int nearFriend = 0;
-					List<Chess> near8Chesses = ChessBoard.getChesses(item.coord.getNear8Coord(false));
-					for (Chess chess : near8Chesses) {
-						if (chess.coord.isLegal()) {
-							if (chess.status == 'e') {
+					List<Coord> near8Chesses = item.coord.getNear8Coord(false);
+					for (Coord coord : near8Chesses) {
+						if (coord.isLegal()) {
+							if (ChessBoard.getChess(coord).status == 'e') {
 								priceMap[item.coord.x][item.coord.y] += nearEmptyPrice;     //空白
 							}
-							if (chess.status == (Main.isBlackPlayer ? 'b' : 'w')) {
+							if (ChessBoard.getChess(coord).status == (Main.isBlackPlayer ? 'b' : 'w')) {
 								priceMap[item.coord.x][item.coord.y] += nearFriendPrice;     //我方棋子
 								nearFriend++;
 							}
-							if (chess.status == (Main.isBlackPlayer ? 'w' : 'b')) {
+							if (ChessBoard.getChess(coord).status == (Main.isBlackPlayer ? 'w' : 'b')) {
 								priceMap[item.coord.x][item.coord.y] += nearEnemyPrice;     //对手棋子
 							}
 						} else {
@@ -217,12 +217,12 @@ class Strategies {
 							nearFriend++;
 						}
 					}
-					List<Chess> near16Chesses = ChessBoard.getChesses(item.coord.getNear16Coord(false));
-					for (Chess chess : near16Chesses) {
-						if (chess.coord.isLegal()) {
-							if(chess.status == 'e') priceMap[item.coord.x][item.coord.y] += farEmptyPrice;
-							if(chess.status == (Main.isBlackPlayer?'b':'w')) priceMap[item.coord.x][item.coord.y] += farFriendPrice;
-							if(chess.status == (Main.isBlackPlayer?'w':'b')) priceMap[item.coord.x][item.coord.y] +=farEnemyPrice;
+					List<Coord> near16Chesses = item.coord.getNear16Coord(false);
+					for (Coord coord : near16Chesses) {
+						if (coord.isLegal()) {
+							if(ChessBoard.getChess(coord).status == 'e') priceMap[item.coord.x][item.coord.y] += farEmptyPrice;
+							if(ChessBoard.getChess(coord).status == (Main.isBlackPlayer?'b':'w')) priceMap[item.coord.x][item.coord.y] += farFriendPrice;
+							if(ChessBoard.getChess(coord).status == (Main.isBlackPlayer?'w':'b')) priceMap[item.coord.x][item.coord.y] +=farEnemyPrice;
 						} else priceMap[item.coord.x][item.coord.y] += farWallPrice;
 					}
 					//防止自己填眼

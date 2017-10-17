@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     
-    public static boolean isBlackPlayer;        //存储选定的黑方白方
+    static boolean isBlackPlayer;        //存储选定的黑方白方
     
     @Override
     public void start(Stage welcomeStage) throws Exception {

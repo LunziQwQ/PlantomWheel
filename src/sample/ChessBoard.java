@@ -32,22 +32,5 @@ class ChessBoard {
 		coords.forEach(x -> result.add(getChess(x)));
 		return result;
 	}
-	
-	void print() {
-		for (int i = 0; i < 9; i++) {
-			if (i == 0) {
-				System.out.print("   ");
-				for (int j = 0; j < 9; j++)
-					System.out.print((char)(j + 'A') + "  ");
-				System.out.println();
-			}
-			for (int j = 0; j < 9; j++) {
-				if (j == 0)
-					System.out.print(i+1+"  ");
-				System.out.print(board[i][j].status + "  ");
-			}
-			System.out.println();
-		}
-	}
 }
 
