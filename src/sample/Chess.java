@@ -49,7 +49,7 @@ class Chess {
 						Group tempGroup = new Group(status);
 						tempGroup.addChess(this);
 						tempGroup.addChess(x);
-						Group.groups.add(tempGroup);
+						ChessBoard.groups.add(tempGroup);
 					} else {
 						x.group.addChess(this);
 					}

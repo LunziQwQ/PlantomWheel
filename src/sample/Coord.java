@@ -38,6 +38,11 @@ class Coord {
 		y = coord.y;
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("(%d, %d)", x, y);
+	}
+	
 	static boolean isCoordLegal(int x, int y) {
 		return x >= 0 && x < 9 && y >= 0 && y < 9;
 	}

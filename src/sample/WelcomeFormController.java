@@ -60,12 +60,12 @@ public class WelcomeFormController {
 	private void gameStart(boolean isBlackPlayer) {
 		try {
 			Main.isBlackPlayer = isBlackPlayer;
-			Stage gameStage = new Stage();
+			Main.gameStage = new Stage();
 			Parent root = FXMLLoader.load(getClass().getResource("MainForm.fxml"));
-			gameStage.setScene(new Scene(root, 800, 600));
-			gameStage.setTitle("PlantomWheel --" + (isBlackPlayer ? "black" : "white") + " player");
-			gameStage.setResizable(false);   //禁止用户更改窗口大小
-			gameStage.show();
+			Main.gameStage.setScene(new Scene(root, 800, 600));
+			Main.gameStage.setTitle("PlantomWheel --" + (isBlackPlayer ? "black" : "white") + " player");
+			Main.gameStage.setResizable(false);   //禁止用户更改窗口大小
+			Main.gameStage.show();
 			Stage welcomeStage = (Stage) welcome.getScene().getWindow();
 			welcomeStage.close();
 		} catch (IOException ioe) {

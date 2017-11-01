@@ -12,6 +12,7 @@ import java.util.List;
  */
 class ChessBoard {
 	static Chess[][] board;
+	static List<Group> groups = new ArrayList<>();
 	
 	ChessBoard() {
 		int size = 9;

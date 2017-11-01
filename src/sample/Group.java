@@ -12,7 +12,6 @@ import java.util.List;
  * ***********************************************
  */
 class Group {
-	static List<Group> groups = new ArrayList<>();
 	int health = 0;
 	char status = 'e';
 	boolean needUpdate = false;
@@ -77,7 +76,7 @@ class Group {
 	
 	void merge(Group group) {
 		group.chesses.addAll(chesses);
-		Group.groups.remove(group);
+		ChessBoard.groups.remove(group);
 	}
 	
 	void capture() {
@@ -88,12 +87,12 @@ class Group {
 			iterator.remove();
 		}
 		libertys.forEach(x -> x.setChess(Main.isBlackPlayer ? 'w' : 'b'));
-		groups.remove(this);
+		ChessBoard.groups.remove(this);
 	}
 	
 	void update() {
 		if (this.chesses.size() == 0) {
-			groups.remove(this);
+			ChessBoard.groups.remove(this);
 			return;
 		}
 		updateTotallyAlive();
