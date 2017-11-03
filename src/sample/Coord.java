@@ -43,6 +43,9 @@ class Coord {
 		return String.format("(%d, %d)", x, y);
 	}
 	
+	@Override
+	public boolean equals(Object obj) { return obj instanceof Coord && equals((Coord) obj); }
+	
 	static boolean isCoordLegal(int x, int y) {
 		return x >= 0 && x < 9 && y >= 0 && y < 9;
 	}

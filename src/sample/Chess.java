@@ -26,7 +26,7 @@ class Chess {
 	}
 	
 	//更新本棋子的信息
-	void update() {
+	private void update() {
 		if (status == 'b' || status == 'w') {
 			if(group != null && group.needUpdate) updateGroup();
 			updateHealth();

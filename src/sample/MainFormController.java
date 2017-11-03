@@ -61,12 +61,42 @@ public class MainFormController {
 	}
 	
 	@FXML
+	void captureRunningOnClick(){
+		mainGC.setStroke(Color.RED);
+		if (runningCapture.get()) {
+			Chess temp = ChessBoard.getChess(mousePosToChessCoord(mousePos));
+			if (captureCoords.indexOf(temp.coord) == -1) {
+				if (temp.group == null) {
+					drawChessBorder(temp.coord, mainGC);
+					captureCoords.add(temp.coord);
+				} else {
+					temp.group.chesses.forEach(item->{
+						drawChessBorder(item.coord, mainGC);
+						captureCoords.add(item.coord);
+					});
+				}
+			} else {
+				if (temp.group == null) {
+					drawChessShape(temp.coord, temp.status);
+					captureCoords.remove(temp.coord);
+				} else {
+					temp.group.chesses.forEach(item->{
+						drawChessShape(item.coord, item.status);
+						captureCoords.remove(item.coord);
+					});
+				}
+			}
+		}
+	}
+	
+	
+	@FXML
 	void getStepOnClick() {
 		stepCache = strategies.getStep();
 		if (stepCache == null) console.appendText("--> Pass!");
 		drawChessShape(stepCache, 't');
 		
-		console.appendText(String.format("--> Try (%d, %d): ", stepCache.x, stepCache.y));
+		console.appendText("--> Try: " + stepCache.toString()+" : ");
 		getStepBtn.setDisable(true);
 		captureBtn.setDisable(true);
 		legalBtn.setDisable(false);
@@ -78,7 +108,7 @@ public class MainFormController {
 		ChessBoard.getChess(stepCache).setChess(Main.isBlackPlayer ? 'b' : 'w');
 		drawChessShape(stepCache, Main.isBlackPlayer ? 'b' : 'w');
 		drawChessBoard();
-		console.appendText("legal\n");
+		console.appendText("legal.\n");
 		stepCache = null;
 		stepCount.setValue(String.valueOf(Integer.valueOf(stepCount.getValue()) + 1));
 		captureBtn.setDisable(false);
@@ -99,7 +129,7 @@ public class MainFormController {
 		}
 		strategies.offensiveFlag = true;
 		drawChessBoard();
-		console.appendText("illegal\n");
+		console.appendText("illegal.\n");
 		getStepOnClick();
 		
 	}
@@ -112,8 +142,10 @@ public class MainFormController {
 			captureBtn.setText("Finish");
 			getStepBtn.setDisable(true);
 			runningCapture.set(true);
-			captureThread.start();
+			runCapture();
 		} else {
+			captureCoords.forEach(item -> ChessBoard.getChess(item).setChess('e'));
+			drawChessBoard();
 			captureBtn.setText("Capture");
 			getStepBtn.setDisable(false);
 			runningCapture.set(false);
@@ -168,7 +200,8 @@ public class MainFormController {
 		captureCanvas.setWidth(600);
 		chessboardUI.getChildren().add(captureCanvas);
 		captureGC = captureCanvas.getGraphicsContext2D();
-		captureGC.setLineWidth(5);
+		captureGC.setLineWidth(3);
+		captureGC.setStroke(Color.RED);
 	}
 	
 	private void drawChessBoard() {
@@ -185,7 +218,7 @@ public class MainFormController {
 		double centerY = 20 + 62.5 * (coord.y);
 		boolean drawMark = false;
 		
-		mainGC.clearRect(centerX-1, centerY-1, 63, 63);
+		mainGC.clearRect(centerX-1, centerY-1, 62.5, 62.5);
 		switch (status) {
 			case 'b':
 				mainGC.setFill(Color.BLACK);
@@ -213,28 +246,47 @@ public class MainFormController {
 	}
 	
 	private void drawChessBorder(Coord coord, GraphicsContext gc) {
+		double centerX = 20 + 62.5 * coord.x, centerY = 20 + 62.5 * coord.y;
+		gc.strokeRect(centerX, centerY, 60, 60);
+		gc.clearRect(centerX - 1.5, centerY + 20, 3, 20);
+		gc.clearRect(centerX + 20, centerY - 1.5, 20, 3);
+		gc.clearRect(centerX + 60 - 1.5, centerY + 20, 3, 20);
+		gc.clearRect(centerX + 20, centerY + 60 - 1.5, 20, 3);
+	}
 	
+	private Coord mousePosToChessCoord(Coord mousePos) {
+		return new Coord((int) ((mousePos.x - 20) / 62.5), (int) ((mousePos.y - 20) / 62.5));
 	}
 	
 	private AtomicBoolean runningCapture = new AtomicBoolean(false);
 	private volatile List<Coord> captureCoords = new ArrayList<>();
-	private Thread captureThread = new Thread(()->{
-		while (true) {
-			if (runningCapture.get()) {
-				captureGC.clearRect(0, 0, 600, 600);
-				if (mousePos.x <= 600) {
-				
+	private void runCapture(){
+		new Thread(() -> {
+			while (true) {
+				if (runningCapture.get()) {
+					captureGC.clearRect(0, 0, 600, 600);
+					if (mousePos.x <= 600 && mousePosToChessCoord(mousePos).isLegal()) {
+						Chess temp = ChessBoard.getChess(mousePosToChessCoord(mousePos));
+						if (temp.group != null)
+							temp.group.chesses.forEach(item -> drawChessBorder(item.coord, captureGC));
+						else
+							drawChessBorder(temp.coord, captureGC);
+					}
+				} else {
+					Platform.runLater(() -> {
+						console.appendText("--> Capture: ");
+						captureCoords.forEach(item -> console.appendText(item.toString() + ", "));
+						console.appendText("Finish! \n");
+						captureCoords.clear();
+					});
+					return;
 				}
-			} else {
-				//输出信息，输出坐标集合
-				Platform.runLater(() -> console.appendText("Capture Finish! \n"));
-				break;
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException ie) {
+					ie.printStackTrace();
+				}
 			}
-			try {
-				Thread.sleep(15);
-			} catch (InterruptedException ie) {
-				ie.printStackTrace();
-			}
-		}
-	});
+		}).start();
+	}
 }
