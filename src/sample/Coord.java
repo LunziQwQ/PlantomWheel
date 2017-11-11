@@ -40,7 +40,7 @@ class Coord {
 	
 	@Override
 	public String toString() {
-		return String.format("(%d, %d)", x, y);
+		return String.format("(%d, %s)", y+1, (char) (x + 'A'));
 	}
 	
 	@Override

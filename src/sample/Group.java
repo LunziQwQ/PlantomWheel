@@ -1,7 +1,6 @@
 package sample;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -14,10 +13,9 @@ import java.util.List;
 class Group {
 	int health = 0;
 	char status = 'e';
-	boolean needUpdate = false;
 	
-	List<Chess> chesses = new ArrayList<>();
-	List<Chess> libertys = new ArrayList<>();        //该棋子组的气
+	HashSet<Chess> chesses = new HashSet<>();
+	HashSet<Chess> libertys = new HashSet<>();        //该棋子组的气
 	boolean totallyAlive = false;
 	
 	Group(char status) {
@@ -50,6 +48,7 @@ class Group {
 	}
 	
 	private void updateLibertys() {
+		libertys.clear();
 		for (Chess item : chesses) {
 			for (Chess near : ChessBoard.getChesses(item.coord.getNear4Coord(true))) {
 				if (near.status != 'b' && near.status != 'w') {
@@ -65,9 +64,6 @@ class Group {
 				}
 			}
 		}
-	}
-	
-	private void updateHealth(){
 		if (status == 'e')
 			health = -1;
 		else
@@ -77,17 +73,7 @@ class Group {
 	void merge(Group group) {
 		group.chesses.addAll(chesses);
 		ChessBoard.groups.remove(group);
-	}
-	
-	void capture() {
-		Iterator<Chess> iterator = chesses.iterator();
-		while (iterator.hasNext()) {
-			Chess x = iterator.next();
-			x.capture();
-			iterator.remove();
-		}
-		libertys.forEach(x -> x.setChess(Main.isBlackPlayer ? 'w' : 'b'));
-		ChessBoard.groups.remove(this);
+		update();
 	}
 	
 	void update() {
@@ -95,8 +81,7 @@ class Group {
 			ChessBoard.groups.remove(this);
 			return;
 		}
-		updateTotallyAlive();
 		updateLibertys();
-		updateHealth();
+		updateTotallyAlive();
 	}
 }

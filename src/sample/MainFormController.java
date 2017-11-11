@@ -24,11 +24,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainFormController {
 	static StringProperty stepCount = new SimpleStringProperty("0");
+	static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
 	private Strategies strategies = new Strategies();
 	private Coord stepCache;
 	
 	private GraphicsContext mainGC;
 	private GraphicsContext captureGC;
+	
+	@FXML
+	private Label actionLabel;
 	
 	@FXML
 	private Button getStepBtn;
@@ -69,10 +73,11 @@ public class MainFormController {
 				if (temp.group == null) {
 					drawChessBorder(temp.coord, mainGC);
 					captureCoords.add(temp.coord);
+					
 				} else {
 					temp.group.chesses.forEach(item->{
 						drawChessBorder(item.coord, mainGC);
-						captureCoords.add(item.coord);
+							captureCoords.add(item.coord);
 					});
 				}
 			} else {
@@ -92,6 +97,7 @@ public class MainFormController {
 	
 	@FXML
 	void getStepOnClick() {
+		nowStatus.set("Thinking...");
 		stepCache = strategies.getStep();
 		if (stepCache == null) console.appendText("--> Pass!");
 		drawChessShape(stepCache, 't');
@@ -101,6 +107,7 @@ public class MainFormController {
 		captureBtn.setDisable(true);
 		legalBtn.setDisable(false);
 		illegalBtn.setDisable(false);
+		nowStatus.set("Waiting judge...");
 	}
 	
 	@FXML
@@ -115,6 +122,7 @@ public class MainFormController {
 		getStepBtn.setDisable(false);
 		legalBtn.setDisable(true);
 		illegalBtn.setDisable(true);
+		nowStatus.set("Waiting...");
 	}
 	
 	@FXML
@@ -139,16 +147,19 @@ public class MainFormController {
 	@FXML
 	void captureOnClick() {
 		if (!runningCapture.get()) {
+			nowStatus.set("Capturing...");
+			captureCoords.clear();
 			captureBtn.setText("Finish");
 			getStepBtn.setDisable(true);
 			runningCapture.set(true);
 			runCapture();
 		} else {
-			captureCoords.forEach(item -> ChessBoard.getChess(item).setChess('e'));
+			captureCoords.forEach(item -> ChessBoard.getChess(item).capture());
 			drawChessBoard();
 			captureBtn.setText("Capture");
 			getStepBtn.setDisable(false);
 			runningCapture.set(false);
+			nowStatus.set("Waiting...");
 		}
 	}
 	
@@ -161,6 +172,7 @@ public class MainFormController {
 		new ChessBoard();
 		drawChessBoardBase();
 		stepCountLabel.textProperty().bind(stepCount);
+		actionLabel.textProperty().bind(nowStatus);
 		console.appendText("Game is start. I'm " + (Main.isBlackPlayer ? "black player" : "white player") + "\n");
 
 	}

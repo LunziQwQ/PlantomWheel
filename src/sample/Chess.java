@@ -28,7 +28,7 @@ class Chess {
 	//更新本棋子的信息
 	private void update() {
 		if (status == 'b' || status == 'w') {
-			if(group != null && group.needUpdate) updateGroup();
+			updateGroup();
 			updateHealth();
 			if (this.health == 0 && (this.status == 'b' || this.status == 'w')) {
 				//Todo:提子自身
@@ -64,7 +64,6 @@ class Chess {
 				if(x.group!=null) x.group.update();
 			}
 		}
-		if(group != null) group.needUpdate = false;
 	}
 	
 	/**
@@ -104,13 +103,9 @@ class Chess {
 				//Hack：若无己方棋子，此点周围一定为对方棋子
 				ChessBoard.getChesses(coord.getNear4Coord(true)).forEach(item -> item.setChess(Main.isBlackPlayer ? 'w' : 'b'));
 		}
-		if(group != null) group.needUpdate = true;
 		this.status = status;
 		update();
-		ChessBoard.getChesses(coord.getNear4Coord(true)).forEach(chess->{
-			if(chess.group!=null) chess.group.needUpdate = true;
-			chess.update();
-		});
+		ChessBoard.getChesses(coord.getNear4Coord(true)).forEach(Chess::update);
 	}
 	
 	void capture(){
