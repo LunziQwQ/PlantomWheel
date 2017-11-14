@@ -43,6 +43,10 @@ class Coord {
 		return String.format("(%d, %s)", y+1, (char) (x + 'A'));
 	}
 	
+	public String toNumString(){
+		return String.format("(%d, %d)", x, y);
+	}
+	
 	@Override
 	public boolean equals(Object obj) { return obj instanceof Coord && equals((Coord) obj); }
 	

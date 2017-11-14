@@ -61,7 +61,7 @@ public class MainFormController {
 	void getMousePos(MouseEvent event) {
 		mousePos = new Coord((int) event.getX(), (int) event.getY());
 		Main.gameStage.setTitle("PlantomWheel  --> " + (Main.isBlackPlayer ? "Black" : "White") + " player" +
-				"   --> MousePos: " + mousePos.toString());
+				"   --> MousePos: " + mousePos.toNumString());
 	}
 	
 	@FXML
@@ -109,6 +109,7 @@ public class MainFormController {
 		illegalBtn.setDisable(false);
 		nowStatus.set("Waiting judge...");
 	}
+	
 	
 	@FXML
 	void legalOnClick() {
