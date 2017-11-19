@@ -24,16 +24,25 @@ class Strategies {
 			farWallPrice = 16;
 
 
-	private Random random = new Random(new Date().getTime());
+	private Random random;
 
-	boolean offensiveFlag = false;
+	boolean offensiveFlag;
 
-	private Coord[] staticStart = new Coord[6];
+	private Coord[] staticStart;
+	
+	private int staticStep = -1;
+	
+	Strategies() {
+		offensiveFlag = false;
+		random = new Random(new Date().getTime());
+		staticStart = new Coord[6];
+		createRandomStart();
+	}
 
-	public Strategies() {
+	private void createRandomStart(){
 		Coord centerPoint = new Coord(4, 4);
 		int[][] randMode = {{+2, +2}, {+2, -2}, {-2, +2}, {-2, -2}};
-
+		
 		//生成本局的随机静态开局
 		int[] mode = randMode[random.nextInt(4)];
 		staticStart[0] = new Coord(centerPoint.x + mode[0], centerPoint.y + mode[1]);
@@ -43,8 +52,7 @@ class Strategies {
 		staticStart[4] = new Coord(staticStart[0].x, staticStart[0].y > 4 ? staticStart[0].y - 4 : staticStart[0].y + 4);
 		staticStart[5] = centerPoint;
 	}
-
-	private int staticStep = -1;
+	
 	Coord getStep() {
 
 		//静态开局
@@ -66,14 +74,7 @@ class Strategies {
 			}
 		}
 
-//		if (GameEngine.stepCount > 30) {
-//			temp = defensive();
-//			if (temp != null) return temp;
-//			else return fuzzy();
-//		}
-
 		return fuzzy();
-
 	}
 
 	private Coord offensive() {//距离己方棋子两格之内的进攻（优先吃子，然后补全，发现不是单一棋子优先补全
