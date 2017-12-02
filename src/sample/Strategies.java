@@ -53,17 +53,22 @@ class Strategies {
 		staticStart[5] = centerPoint;
 	}
 	
+	private Coord staticOpen(){
+		Coord temp = staticStart[staticStep+1];
+		while (!ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
+			staticStep++;
+		}
+		staticStep++;
+		return staticStart[staticStep];
+	}
+	
 	Coord getStep() {
 
 		//静态开局
 		if (staticStep < 5) {
-			Coord temp = staticStart[staticStep+1];
-			while (!ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
-				staticStep++;
-			}
-			staticStep++;
-			return staticStart[staticStep];
+			return staticOpen();
 		}
+		
 		Coord temp = null;
 		if (offensiveFlag) {
 			temp = offensive();
@@ -264,6 +269,6 @@ class Strategies {
 
 	//进攻型策略，围杀，当得到Oops或oops指令时，激活offensiveFlag，若无可落子进攻位置，取消flag，采用其他策略
 	//防御性策略，扫描自己的气与Group，尽可能的连接group，在不存在两个活眼的地方补子
-	//Fuzzy，模糊评估策略，把每个棋子以及其周边设为其影响力，遍历所有可落子的点，取落子后影响力最大的点。相连的子分数加成。
+	//Fuzzy，模糊评估策略，把棋盘分为九个3*3的区域，根据区域内己方棋子的数量判断势力分布，
 }
 
