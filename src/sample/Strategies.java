@@ -53,17 +53,22 @@ class Strategies {
 		staticStart[5] = centerPoint;
 	}
 	
+	private Coord staticOpen(){
+		Coord temp = staticStart[staticStep+1];
+		while (!ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
+			staticStep++;
+		}
+		staticStep++;
+		return staticStart[staticStep];
+	}
+	
 	Coord getStep() {
 
 		//静态开局
 		if (staticStep < 5) {
-			Coord temp = staticStart[staticStep+1];
-			while (!ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
-				staticStep++;
-			}
-			staticStep++;
-			return staticStart[staticStep];
+			return staticOpen();
 		}
+		
 		Coord temp = null;
 		if (offensiveFlag) {
 			temp = offensive();
