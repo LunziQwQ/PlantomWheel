@@ -193,7 +193,7 @@ class Strategies {
 		return null;
 	}
 
-	Coord fuzzy(){
+	private Coord fuzzy(){
 		int[][] priceMap = new int[9][9];
 		int max = -1000;
 		for (Chess[] x : ChessBoard.board) {
@@ -264,6 +264,7 @@ class Strategies {
 
 	//进攻型策略，围杀，当得到Oops或oops指令时，激活offensiveFlag，若无可落子进攻位置，取消flag，采用其他策略
 	//防御性策略，扫描自己的气与Group，尽可能的连接group，在不存在两个活眼的地方补子
-	//Fuzzy，模糊评估策略，把每个棋子以及其周边设为其影响力，遍历所有可落子的点，取落子后影响力最大的点。相连的子分数加成。
+	//Fuzzy，模糊评估策略，将棋盘分为九个区域，根据区域己方棋子数量决定势力判断，选择区域落子。
+	//Check ? 检查落实状态为？的棋子为敌方棋子还是不可下区域。
 }
 

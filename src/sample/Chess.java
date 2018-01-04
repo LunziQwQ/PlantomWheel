@@ -11,7 +11,7 @@ import java.util.List;
  */
 class Chess {
 	Coord coord;
-	int health;
+	private int health;
 	char status;       //b黑, w白, e为空, ?为空但不可用
 	Group group = null;     //Chess所在的Group引用
 	
@@ -82,26 +82,9 @@ class Chess {
 			long nearFriendCount = ChessBoard.getChesses(coord.getNear4Coord(true))
 					.stream().filter(x -> x.status == (Main.isBlackPlayer ? 'b' : 'w')).count();
 			if (nearFriendCount > 0) {
-				//Hack：若有己方棋子，则己方棋子所在group的唯一气为此点，设置己方棋子所在group周围都为对方棋子
-				for (Chess nearChess : ChessBoard.getChesses(coord.getNear4Coord(true))) {
-					if (nearChess.status == (Main.isBlackPlayer ? 'b' : 'w')) {
-						if (nearChess.group == null) {
-							ChessBoard.getChesses(nearChess.coord.getNear4Coord(true)).forEach(item -> {
-								if (item.status == 'e' && !item.coord.equals(coord)) {
-									item.setChess(Main.isBlackPlayer ? 'w' : 'b');
-								}
-							});
-						} else {
-							for (Chess item:nearChess.group.libertys){
-								if(item.status == 'e'&& !item.coord.equals(coord))
-									item.setChess(Main.isBlackPlayer ? 'w' : 'b');
-							}
-						}
-					}
-				}
-			}else
-				//Hack：若无己方棋子，此点周围一定为对方棋子
-				ChessBoard.getChesses(coord.getNear4Coord(true)).forEach(item -> item.setChess(Main.isBlackPlayer ? 'w' : 'b'));
+				setChess(Main.isBlackPlayer ? 'w' : 'b');
+				return;
+			}
 		}
 		this.status = status;
 		update();

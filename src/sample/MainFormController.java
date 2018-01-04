@@ -3,13 +3,13 @@ package sample;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainFormController {
-	static StringProperty stepCount = new SimpleStringProperty("0");
-	static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
+	private static StringProperty stepCount = new SimpleStringProperty("0");
+	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
 	private Strategies strategies = new Strategies();
 	private Coord stepCache;
 	
@@ -128,19 +128,12 @@ public class MainFormController {
 	
 	@FXML
 	void illegalOnClick(MouseEvent event) {
-		MouseButton mouseButton = event.getButton();
-		if (mouseButton == MouseButton.PRIMARY) {
-			ChessBoard.getChess(stepCache).setChess('?');
-			drawChessShape(stepCache, '?');
-		} else {
-			ChessBoard.getChess(stepCache).setChess(Main.isBlackPlayer ? 'w' : 'b');
-			drawChessShape(stepCache, Main.isBlackPlayer ? 'w' : 'b');
-		}
+		ChessBoard.getChess(stepCache).setChess('?');
+		drawChessShape(stepCache, '?');
 		strategies.offensiveFlag = true;
 		drawChessBoard();
 		console.appendText("illegal.\n");
 		getStepOnClick();
-		
 	}
 	
 	
@@ -166,7 +159,7 @@ public class MainFormController {
 	
 	public void initialize() {
 		//Make the console always scroll to the bottom
-		this.console.textProperty().addListener((observableValue, oldValue, newValue) -> {
+		this.console.textProperty().addListener((ObservableValue<? extends String> observableValue, String oldValue, String newValue) -> {
 			this.console.setScrollTop(1.7976931348623157E308D);
 		});
 		
