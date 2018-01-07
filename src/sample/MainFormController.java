@@ -99,7 +99,12 @@ public class MainFormController {
 	void getStepOnClick() {
 		nowStatus.set("Thinking...");
 		stepCache = strategies.getStep();
-		if (stepCache == null) console.appendText("--> Pass!");
+		if (stepCache == null) {
+			nowStatus.set("Pass！");
+			console.appendText("--> Pass!");
+			getStepBtn.setDisable(true);
+			return;
+		}
 		drawChessShape(stepCache, 't');
 		
 		console.appendText("--> Try: " + stepCache.toString()+" : ");

@@ -233,7 +233,7 @@ class Strategies {
 					}
 					//防止自己填眼
 					if (nearFriend >= 3) {
-						priceMap[item.coord.x][item.coord.y] -= 100;
+						priceMap[item.coord.x][item.coord.y] -= 500;
 					}
 				}
 				if (max < priceMap[item.coord.x][item.coord.y]) {
@@ -252,7 +252,7 @@ class Strategies {
 		System.out.println("+=================================+");
 
 
-		if (max < 0) return null;
+		if (max <= 0) return null;
 		int randCount = random.nextInt(81);
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
