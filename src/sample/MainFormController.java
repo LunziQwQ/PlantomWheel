@@ -119,7 +119,6 @@ public class MainFormController {
 	@FXML
 	void legalOnClick() {
 		ChessBoard.getChess(stepCache).setChess(Main.isBlackPlayer ? 'b' : 'w');
-		drawChessShape(stepCache, Main.isBlackPlayer ? 'b' : 'w');
 		drawChessBoard();
 		console.appendText("legal.\n");
 		stepCache = null;
@@ -134,7 +133,6 @@ public class MainFormController {
 	@FXML
 	void illegalOnClick(MouseEvent event) {
 		ChessBoard.getChess(stepCache).setChess('?');
-		drawChessShape(stepCache, '?');
 		strategies.offensiveFlag = true;
 		drawChessBoard();
 		console.appendText("illegal.\n");
@@ -153,6 +151,7 @@ public class MainFormController {
 			runningCapture.set(true);
 			runCapture();
 		} else {
+			//TODO：添加遍历，对每个棋子检测是否有Group，有的话执行提子Group并删除list中已被提子的坐标。为提子方法添加提我方子补全信息。
 			captureCoords.forEach(item -> ChessBoard.getChess(item).capture());
 			drawChessBoard();
 			captureBtn.setText("Capture");

@@ -1,5 +1,6 @@
 package sample;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -32,11 +33,15 @@ class Strategies {
 	
 	private int staticStep = -1;
 	
+	private char myStatus, enemyStatus;
+	
 	Strategies() {
 		offensiveFlag = false;
 		random = new Random(new Date().getTime());
 		staticStart = new Coord[6];
 		createRandomStart();
+		myStatus = Main.isBlackPlayer ? 'b' : 'w';
+		enemyStatus = Main.isBlackPlayer ? 'w' : 'b';
 	}
 
 	private void createRandomStart(){
@@ -63,16 +68,20 @@ class Strategies {
 	}
 	
 	Coord getStep() {
+		Coord tempStep;
 
 		//静态开局
 		if (staticStep < 5) {
 			return staticOpen();
 		}
 		
-		Coord temp = null;
+		tempStep = checkUnknown();
+		if(checkUnknown() != null)
+			return tempStep;
+		
 		if (offensiveFlag) {
-			temp = offensive();
-			if (temp != null) return temp;
+			tempStep = offensive();
+			if (tempStep != null) return tempStep;
 			else{
 				offensiveFlag = false;
 				return fuzzy();
@@ -81,19 +90,57 @@ class Strategies {
 
 		return fuzzy();
 	}
+	
+	private Coord checkUnknown() {
+		List<Chess> unknownList =getUnknownList();
+		if (unknownList != null) {
+			for (Chess item : unknownList) {
+				ChessBoard.getChesses(item.coord.getNear4Coord(true)).forEach(nearChess ->{
+					if(nearChess.status == myStatus) {
+						item.status = enemyStatus;
+					}
+				});
+				
+				//have no change. so try to set nearCoord to check is a enemy chess or a illegal coord
+				if(item.status == '?'){
+					//TODO:选择最合适的点位返回，判断四个方位哪个距离己方棋子最近，选择该方向试探。
+					//Just temp method
+					int x = item.coord.x - 5;
+					int y = item.coord.y - 5;
+					if (Math.abs(x) > Math.abs(y))
+						return new Coord((item.coord.x + x / Math.abs(x)), item.coord.y);
+					else
+						return new Coord(item.coord.x, item.coord.y + y / Math.abs(y));
+				}
+			}
+		}
+		return null;
+	}
+	
+	private List<Chess> getUnknownList() {
+		List<Chess> unknownList = new ArrayList<>();
+		for (Chess[] chesses : ChessBoard.board) {
+			for (Chess x : chesses) {
+				if (x.status == '?') {
+					unknownList.add(x);
+				}
+			}
+		}
+		return unknownList.size() > 0 ? unknownList : null;
+	}
 
 	private Coord offensive() {//距离己方棋子两格之内的进攻（优先吃子，然后补全，发现不是单一棋子优先补全
 		for (Chess[] x : ChessBoard.board) {
 			for (Chess item : x) {
 				int distance = 0;   //距离目标距离
-				if (item.status == (Main.isBlackPlayer ? 'w' : 'b')) {
+				if (item.status == (enemyStatus)) {
 					//进攻目标item
 					//检测两格内是否有右方棋子
 					boolean canAttack = false;
 					Coord friend = null;
 					List<Chess> near8Chesses = ChessBoard.getChesses(item.coord.getNear8Coord(true));
 					for (Chess chess : near8Chesses) {
-						if (chess.status == (Main.isBlackPlayer ? 'b' : 'w')) {
+						if (chess.status == (myStatus)) {
 							if (friend == null ||
 										Math.abs(chess.coord.x - item.coord.x) + Math.abs(chess.coord.y - item.coord.y)
 												< Math.abs(friend.x - item.coord.x) + Math.abs(friend.y - item.coord.y))
@@ -105,7 +152,7 @@ class Strategies {
 					if (!canAttack) {
 						List<Chess> near16Chesses = ChessBoard.getChesses(item.coord.getNear16Coord(true));
 						for (Chess chess : near16Chesses) {
-							if (chess.status == (Main.isBlackPlayer ? 'b' : 'w')) {
+							if (chess.status == (myStatus)) {
 								if (friend == null ||
 										Math.abs(chess.coord.x - item.coord.x) + Math.abs(chess.coord.y - item.coord.y)
 												< Math.abs(friend.x - item.coord.x) + Math.abs(friend.y - item.coord.y))
@@ -122,7 +169,7 @@ class Strategies {
 									if (chess.canSet(Main.isBlackPlayer)) {
 										boolean isNearFriend = false;
 										for (Chess tempItem : ChessBoard.getChesses(chess.coord.getNear4Coord(true))) {
-											if (tempItem.status == (Main.isBlackPlayer ? 'b' : 'w')) {
+											if (tempItem.status == (myStatus)) {
 												isNearFriend = true;
 											}
 										}
@@ -137,7 +184,7 @@ class Strategies {
 									if (liberty.canSet(Main.isBlackPlayer)) {
 										boolean tempNear = false;
 										for (Chess tempItem : ChessBoard.getChesses(liberty.coord.getNear4Coord(true))) {
-											if (tempItem.status == (Main.isBlackPlayer ? 'b' : 'w')) {
+											if (tempItem.status == (myStatus)) {
 												tempNear = true;
 												break;
 											}
@@ -153,7 +200,7 @@ class Strategies {
 											if (tempItem.canSet(Main.isBlackPlayer)) {
 												boolean tempNear = false;
 												for (Chess _temp : ChessBoard.getChesses(tempItem.coord.getNear4Coord(true))) {
-													if (_temp.status == (Main.isBlackPlayer ? 'b' : 'w')) {
+													if (_temp.status == (myStatus)) {
 														tempNear = true;
 														break;
 													}
@@ -211,11 +258,11 @@ class Strategies {
 							if (ChessBoard.getChess(coord).status == 'e') {
 								priceMap[item.coord.x][item.coord.y] += nearEmptyPrice;     //空白
 							}
-							if (ChessBoard.getChess(coord).status == (Main.isBlackPlayer ? 'b' : 'w')) {
+							if (ChessBoard.getChess(coord).status == (myStatus)) {
 								priceMap[item.coord.x][item.coord.y] += nearFriendPrice;     //我方棋子
 								nearFriend++;
 							}
-							if (ChessBoard.getChess(coord).status == (Main.isBlackPlayer ? 'w' : 'b')) {
+							if (ChessBoard.getChess(coord).status == (enemyStatus)) {
 								priceMap[item.coord.x][item.coord.y] += nearEnemyPrice;     //对手棋子
 							}
 						} else {
@@ -226,9 +273,9 @@ class Strategies {
 					List<Coord> near16Chesses = item.coord.getNear16Coord(false);
 					for (Coord coord : near16Chesses) {
 						if (coord.isLegal()) {
-							if(ChessBoard.getChess(coord).status == 'e') priceMap[item.coord.x][item.coord.y] += farEmptyPrice;
-							if(ChessBoard.getChess(coord).status == (Main.isBlackPlayer?'b':'w')) priceMap[item.coord.x][item.coord.y] += farFriendPrice;
-							if(ChessBoard.getChess(coord).status == (Main.isBlackPlayer?'w':'b')) priceMap[item.coord.x][item.coord.y] +=farEnemyPrice;
+							if (ChessBoard.getChess(coord).status == 'e') priceMap[item.coord.x][item.coord.y] += farEmptyPrice;
+							if (ChessBoard.getChess(coord).status == myStatus) priceMap[item.coord.x][item.coord.y] += farFriendPrice;
+							if (ChessBoard.getChess(coord).status == enemyStatus) priceMap[item.coord.x][item.coord.y] +=farEnemyPrice;
 						} else priceMap[item.coord.x][item.coord.y] += farWallPrice;
 					}
 					//防止自己填眼
@@ -271,5 +318,8 @@ class Strategies {
 	//防御性策略，扫描自己的气与Group，尽可能的连接group，在不存在两个活眼的地方补子
 	//Fuzzy，模糊评估策略，将棋盘分为九个区域，根据区域己方棋子数量决定势力判断，选择区域落子。
 	//Check ? 检查落实状态为？的棋子为敌方棋子还是不可下区域。
+	//TODO:提子策略不会落下最后一步！！！！妈个鸡我以前写的函数是智障么23333333
+	//测试发现的特殊情况，当尝试落子自身group的最后一个气眼失败时，认定为敌方棋子（加判定or防止填眼）、建议后者
+	//FIXME:Group相连的棋子会出现Group内ChessList不一致
 }
 
