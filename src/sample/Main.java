@@ -20,6 +20,9 @@ public class Main extends Application {
         welcomeStage.show();
     }
     
+    static boolean isMyStatus(char status){
+        return isBlackPlayer ? 'b' == status : 'w' == status;
+    }
     
     public static void main(String[] args) {
         launch(args);

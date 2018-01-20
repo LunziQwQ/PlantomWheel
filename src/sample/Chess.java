@@ -49,7 +49,6 @@ class Chess {
 						Group tempGroup = new Group(status);
 						tempGroup.addChess(this);
 						tempGroup.addChess(x);
-						ChessBoard.groups.add(tempGroup);
 					} else {
 						x.group.addChess(this);
 					}
@@ -89,15 +88,31 @@ class Chess {
 		this.status = status;
 		update();
 		ChessBoard.getChesses(coord.getNear4Coord(true)).forEach(Chess::update);
+		System.out.println("SetChess" + this.coord + " set " + status);
 	}
 	
-	void capture(){
-		setChess('e');
+	void capture() {
+		if (Main.isMyStatus(this.status)) {
+			System.out.println("Do it");
+			
+			if (group != null) {
+				group.libertys.forEach(item -> item.status = Main.isBlackPlayer ? 'w' : 'b');
+			} else {
+				ChessBoard.getChesses(this.coord.getNear4Coord(true)).forEach(item -> item.status = Main.isBlackPlayer ? 'w' : 'b');
+			}
+		}
+		this.status = 'e';
+		if (group != null) {
+			group.chesses.forEach(item -> {
+				item.status = 'e';
+				item.group = null;
+			});
+		}
 	}
 	
 	//判断该Chess是否可以落子
 	boolean canSet(boolean isBlack) {
-		if (this.status == 'b' || this.status == 'w') return false;
+		if (status == 'b' || status == 'w') return false;
 		//检查周边棋子是否有空
 		List<Chess> near = ChessBoard.getChesses(coord.getNear4Coord(true));
 		for (Chess x : near) {

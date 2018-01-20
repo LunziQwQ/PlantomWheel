@@ -143,6 +143,7 @@ public class MainFormController {
 	
 	@FXML
 	void captureOnClick() {
+		
 		if (!runningCapture.get()) {
 			nowStatus.set("Capturing...");
 			captureCoords.clear();
@@ -151,8 +152,16 @@ public class MainFormController {
 			runningCapture.set(true);
 			runCapture();
 		} else {
-			//TODO：添加遍历，对每个棋子检测是否有Group，有的话执行提子Group并删除list中已被提子的坐标。为提子方法添加提我方子补全信息。
-			captureCoords.forEach(item -> ChessBoard.getChess(item).capture());
+			if (captureCoords.size() > 0) {
+				strategies.offensiveFlag = true;
+			}
+			for (int i = 0; i < captureCoords.size(); i++) {
+				Chess chess = ChessBoard.getChess(captureCoords.get(i));
+				if (chess.group != null) {
+					chess.group.chesses.forEach(item -> captureCoords.remove(item.coord));
+				}
+				chess.capture();
+			}
 			drawChessBoard();
 			captureBtn.setText("Capture");
 			getStepBtn.setDisable(false);
@@ -163,9 +172,7 @@ public class MainFormController {
 	
 	public void initialize() {
 		//Make the console always scroll to the bottom
-		this.console.textProperty().addListener((ObservableValue<? extends String> observableValue, String oldValue, String newValue) -> {
-			this.console.setScrollTop(1.7976931348623157E308D);
-		});
+		this.console.textProperty().addListener((ObservableValue<? extends String> observableValue, String oldValue, String newValue) -> this.console.setScrollTop(1.7976931348623157E308D));
 		
 		new ChessBoard();
 		drawChessBoardBase();

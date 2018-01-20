@@ -12,7 +12,7 @@ import java.util.List;
  */
 class Group {
 	int health = 0;
-	char status = 'e';
+	private char status = 'e';
 	
 	HashSet<Chess> chesses = new HashSet<>();
 	HashSet<Chess> libertys = new HashSet<>();        //该棋子组的气
@@ -72,13 +72,12 @@ class Group {
 	
 	void merge(Group group) {
 		group.chesses.addAll(chesses);
-		ChessBoard.groups.remove(group);
+		chesses.forEach(item -> item.group = group);
 		update();
 	}
 	
 	void update() {
 		if (this.chesses.size() == 0) {
-			ChessBoard.groups.remove(this);
 			return;
 		}
 		updateLibertys();
