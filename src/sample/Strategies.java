@@ -1,9 +1,7 @@
 package sample;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * ***********************************************
@@ -101,16 +99,24 @@ class Strategies {
 					}
 				});
 				
-				//have no change. so try to set nearCoord to check is a enemy chess or a illegal coord
 				if(item.status == '?'){
-					//TODO:选择最合适的点位返回，判断四个方位哪个距离己方棋子最近，选择该方向试探。
-					//Just temp method
-					int x = item.coord.x - 5;
-					int y = item.coord.y - 5;
-					if (Math.abs(x) > Math.abs(y))
-						return new Coord((item.coord.x + x / Math.abs(x)), item.coord.y);
-					else
-						return new Coord(item.coord.x, item.coord.y + y / Math.abs(y));
+					Coord nearest = null;  //距离己方棋子最近的near4坐标
+					for (Chess x : ChessBoard.getChesses(item.coord.getNear4Coord(true))) {
+						if (x.status == 'e') {
+							if (ChessBoard.getChesses(x.coord.getNear8Coord(true))
+									.stream().filter(n -> n.status == myStatus).count() > 0) {
+								return x.coord;
+							}
+						}
+					}
+					for (Chess x : ChessBoard.getChesses(item.coord.getNear4Coord(true))) {
+						if (x.status == 'e') {
+							if (ChessBoard.getChesses(x.coord.getNear16Coord(true))
+									.stream().filter(n -> n.status == myStatus).count() > 0) {
+								return x.coord;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -130,23 +136,39 @@ class Strategies {
 	}
 
 	private Coord offensive() {//距离己方棋子两格之内的进攻（优先吃子，然后补全，发现不是单一棋子优先补全
-		for (Chess[] x : ChessBoard.board) {
-			for (Chess item : x) {
+		for (Chess[] chesses : ChessBoard.board) {
+			for (Chess item : chesses) {
+				if (item.status == enemyStatus) {
+					//最后一步直接执行
+					if (item.health == 1) {
+						if (item.group != null && !item.group.totallyAlive) {
+							return item.group.libertys.iterator().next().coord;
+						} else {
+							return ChessBoard.getChesses(item.coord.getNear4Coord(true))
+									.stream().filter(l -> l.status == 'e').collect(Collectors.toList()).get(0).coord;
+						}
+					}
+				}
+			}
+		}
+		for (Chess[] chesses : ChessBoard.board) {
+			for (Chess item : chesses) {
 				int distance = 0;   //距离目标距离
-				if (item.status == (enemyStatus)) {
+				if (item.status == enemyStatus) {
+					
 					//进攻目标item
 					//检测两格内是否有右方棋子
 					boolean canAttack = false;
 					Coord friend = null;
 					List<Chess> near8Chesses = ChessBoard.getChesses(item.coord.getNear8Coord(true));
 					for (Chess chess : near8Chesses) {
-						if (chess.status == (myStatus)) {
+						if (chess.status == myStatus) {
 							if (friend == null ||
-										Math.abs(chess.coord.x - item.coord.x) + Math.abs(chess.coord.y - item.coord.y)
-												< Math.abs(friend.x - item.coord.x) + Math.abs(friend.y - item.coord.y))
+									Math.abs(chess.coord.x - item.coord.x) + Math.abs(chess.coord.y - item.coord.y)
+											< Math.abs(friend.x - item.coord.x) + Math.abs(friend.y - item.coord.y))
 								friend = new Coord(chess.coord);
-								canAttack = true;
-								distance = 1;
+							canAttack = true;
+							distance = 1;
 						}
 					}
 					if (!canAttack) {
@@ -162,6 +184,8 @@ class Strategies {
 							}
 						}
 					}
+					
+					//若两格内有己方棋子，开始进攻
 					if (canAttack) {
 						if (distance == 1) {
 							if (item.group == null) {
@@ -317,10 +341,8 @@ class Strategies {
 	//进攻型策略，围杀，当得到Oops或oops指令时，激活offensiveFlag，若无可落子进攻位置，取消flag，采用其他策略
 	//防御性策略，扫描自己的气与Group，尽可能的连接group，在不存在两个活眼的地方补子
 	//Fuzzy，模糊评估策略，将棋盘分为九个区域，根据区域己方棋子数量决定势力判断，选择区域落子。
-	//Check ? 检查落实状态为？的棋子为敌方棋子还是不可下区域。
-	//TODO:提子策略不会落下最后一步！！！！妈个鸡我以前写的函数是智障么23333333
 	//测试发现的特殊情况，当尝试落子自身group的最后一个气眼失败时，认定为敌方棋子（加判定or防止填眼）、建议后者
-	//FIXME:Group相连的棋子会出现Group内ChessList不一致----貌似解决了，还未完全测试。
 	//进攻flag可以让策略函数自行检测，不需要手动维护flag
+	//FIXME:出现试图落子？失败的情况下反复落子？
 }
 

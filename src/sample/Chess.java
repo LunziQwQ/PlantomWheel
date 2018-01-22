@@ -11,7 +11,7 @@ import java.util.List;
  */
 class Chess {
 	Coord coord;
-	private int health;
+	int health;
 	char status;       //b黑, w白, e为空, ?为空但不可用
 	Group group = null;     //Chess所在的Group引用
 	
@@ -30,9 +30,6 @@ class Chess {
 		if (status == 'b' || status == 'w') {
 			updateGroup();
 			updateHealth();
-			if (this.health == 0 && (this.status == 'b' || this.status == 'w')) {
-				//Todo:提子自身
-			}
 		} else {
 			health = -1;
 			group = null;
@@ -76,6 +73,14 @@ class Chess {
 	}
 	
 	void setChess(char status) {
+		//检查附近是否有unknow棋子，确定状态
+		if (status == (Main.isBlackPlayer ? 'b' : 'w')) {
+			ChessBoard.getChesses(coord.getNear4Coord(true))
+					.stream().filter(x -> x.status == '?').forEach(x->x.status = (Main.isBlackPlayer ? 'w' : 'b'));
+		}
+		
+		
+		
 		//若收到Illegal，尝试判定是否为存在己方棋子
 		if (status == '?') {
 			long nearFriendCount = ChessBoard.getChesses(coord.getNear4Coord(true))
