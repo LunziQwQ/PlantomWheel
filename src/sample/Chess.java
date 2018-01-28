@@ -80,15 +80,20 @@ class Chess {
 		}
 		
 		
-		
 		//若收到Illegal，尝试判定是否为存在己方棋子
 		if (status == '?') {
-			long nearFriendCount = ChessBoard.getChesses(coord.getNear4Coord(true))
-					.stream().filter(x -> x.status == (Main.isBlackPlayer ? 'b' : 'w')).count();
-			if (nearFriendCount > 0) {
+			if (this.status == '?') {
 				setChess(Main.isBlackPlayer ? 'w' : 'b');
 				return;
+			} else {
+				long nearFriendCount = ChessBoard.getChesses(coord.getNear4Coord(true))
+						.stream().filter(x -> x.status == (Main.isBlackPlayer ? 'b' : 'w')).count();
+				if (nearFriendCount > 0) {
+					setChess(Main.isBlackPlayer ? 'w' : 'b');
+					return;
+				}
 			}
+			
 		}
 		this.status = status;
 		update();
