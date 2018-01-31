@@ -13,7 +13,7 @@ public class Main extends Application {
     
     @Override
     public void start(Stage welcomeStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("WelcomeForm.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/WelcomeForm.fxml"));
         welcomeStage.setTitle("Welcome to PlantomWheel v1.0");
         welcomeStage.setScene(new Scene(root, 600, 400));
         welcomeStage.setResizable(false);       //禁止用户更改窗口大小

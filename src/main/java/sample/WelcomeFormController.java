@@ -61,7 +61,7 @@ public class WelcomeFormController {
 		try {
 			Main.isBlackPlayer = isBlackPlayer;
 			Main.gameStage = new Stage();
-			Parent root = FXMLLoader.load(getClass().getResource("MainForm.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("/MainForm.fxml"));
 			Main.gameStage.setScene(new Scene(root, 800, 600));
 			Main.gameStage.setTitle("PlantomWheel --" + (isBlackPlayer ? "black" : "white") + " player");
 			Main.gameStage.setResizable(false);   //禁止用户更改窗口大小

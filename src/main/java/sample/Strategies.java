@@ -104,7 +104,7 @@ class Strategies {
 					for (Chess x : ChessBoard.getChesses(item.coord.getNear4Coord(true))) {
 						if (x.status == 'e') {
 							if (ChessBoard.getChesses(x.coord.getNear8Coord(true))
-									.stream().filter(n -> n.status == myStatus).count() > 0) {
+									.stream().anyMatch(n -> n.status == myStatus)) {
 								return x.coord;
 							}
 						}
@@ -112,7 +112,7 @@ class Strategies {
 					for (Chess x : ChessBoard.getChesses(item.coord.getNear4Coord(true))) {
 						if (x.status == 'e') {
 							if (ChessBoard.getChesses(x.coord.getNear16Coord(true))
-									.stream().filter(n -> n.status == myStatus).count() > 0) {
+									.stream().anyMatch(n -> n.status == myStatus)) {
 								return x.coord;
 							}
 						}
