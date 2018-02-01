@@ -1,5 +1,6 @@
 package sample;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,7 +10,7 @@ import java.util.List;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-class Chess {
+public class Chess implements Serializable {
 	Coord coord;
 	int health;
 	char status;       //b黑, w白, e为空, ?为空但不可用
@@ -72,7 +73,7 @@ class Chess {
 		else health = group.health;
 	}
 	
-	void setChess(char status) {
+	public void setChess(char status) {
 		//检查附近是否有unknow棋子，确定状态
 		if (status == (Main.isBlackPlayer ? 'b' : 'w')) {
 			ChessBoard.getChesses(coord.getNear4Coord(true))
@@ -120,6 +121,16 @@ class Chess {
 		}
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Chess)) return false;
+		Chess chess = (Chess) o;
+		return health == chess.health &&
+				status == chess.status &&
+				coord.equals(chess.coord);
+	}
+	
 	//判断该Chess是否可以落子
 	boolean canSet(boolean isBlack) {
 		if (status == 'b' || status == 'w') return false;
@@ -149,6 +160,7 @@ class Chess {
 					return true;
 			}
 		}
+		
 		return false;
 	}
 }

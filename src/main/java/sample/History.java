@@ -2,10 +2,7 @@ package sample;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * ***********************************************
@@ -15,9 +12,17 @@ import java.util.List;
  * ***********************************************
  */
 public class History implements Serializable {
-	List<HistoryStep> history;
+	public List<HistoryStep> history;
 	
-	History() {
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof History)) return false;
+		History that = (History) o;
+		return this.history.equals(that.history);
+	}
+	
+	public History() {
 		history = new ArrayList<>();
 	}
 	
@@ -27,20 +32,20 @@ public class History implements Serializable {
 	//TODO: 历史操作和棋盘的保存，防止重复争子，增加回退功能
 	//TODO: 可能的情况下，添加保存棋谱，复盘功能
 	
-	//TODO: Test save and load method
-	boolean save(String name) {
-		String path = "replay/" + name + new SimpleDateFormat("_yyyy_MM_dd_(HH:mm:ss)").format(new Date()) + ".rep";
+	public String save(String name) {
+		String path = "E:/replay/" + name + new SimpleDateFormat("_yyyy_MM_dd_(HH_mm_ss)").format(new Date()) + ".rep";
+		System.out.println(path);
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)));
 			writeObject(oos);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
-		return true;
+		return path;
 	}
 	
-	boolean load(String path) {
+	public boolean load(String path) {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(path)));
 			readObject(ois);

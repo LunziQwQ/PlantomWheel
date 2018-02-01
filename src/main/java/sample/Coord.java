@@ -1,5 +1,6 @@
 package sample;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-class Coord {
+public class Coord implements Serializable {
 	int x, y;
 	private int[][] near4Coords = {
 			{0, 1}, {1, 0}, {0, -1}, {-1, 0}
@@ -28,7 +29,7 @@ class Coord {
 	
 	
 	
-	Coord(int x, int y) {
+	public Coord(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}

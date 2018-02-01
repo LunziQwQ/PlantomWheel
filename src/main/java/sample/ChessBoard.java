@@ -10,10 +10,10 @@ import java.util.List;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-class ChessBoard {
-	static Chess[][] board;
+public class ChessBoard {
+	public static Chess[][] board;
 	
-	ChessBoard() {
+	public ChessBoard() {
 		int size = 9;
 		board = new Chess[9][9];
 		for (int i = 0; i < 9; i++) {
@@ -23,11 +23,11 @@ class ChessBoard {
 		}
 	}
 	
-	static Chess getChess(Coord coord) {
+	public static Chess getChess(Coord coord) {
 		return board[coord.x][coord.y];
 	}
 	
-	static List<Chess> getChesses(List<Coord> coords) {
+	public static List<Chess> getChesses(List<Coord> coords) {
 		List<Chess> result = new ArrayList<>();
 		coords.forEach(x -> result.add(getChess(x)));
 		return result;

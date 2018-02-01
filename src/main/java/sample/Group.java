@@ -1,5 +1,6 @@
 package sample;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 
@@ -10,9 +11,9 @@ import java.util.List;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-class Group {
+class Group implements Serializable{
 	int health = 0;
-	private char status = 'e';
+	private char status;
 	
 	HashSet<Chess> chesses = new HashSet<>();
 	HashSet<Chess> libertys = new HashSet<>();        //该棋子组的气
