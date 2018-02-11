@@ -27,10 +27,18 @@ public class History implements Serializable {
 	}
 	
 	boolean isPreviousStep(Coord pre) {
-		return true;
+		for (int i = history.size() - 1; i >= 0; i--) {
+			HistoryStep temp = history.get(i);
+			if (temp.coord.equals(pre)) {
+				return true;
+			}
+			if (temp.behavior.equals("legal")) {
+				return false;
+			}
+		}
+		return false;
 	}
-	//TODO: 历史操作和棋盘的保存，防止重复争子，增加回退功能
-	//TODO: 可能的情况下，添加保存棋谱，复盘功能
+	//TODO: 增加回退功能，右侧操作区新增选项卡，显示历史操作，点击渲染该步棋盘，复盘功能
 	
 	public String save(String name) {
 		String path = "E:/replay/" + name + new SimpleDateFormat("_yyyy_MM_dd_(HH_mm_ss)").format(new Date()) + ".rep";
