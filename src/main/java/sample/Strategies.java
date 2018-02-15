@@ -1,5 +1,6 @@
 package sample;
 
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -10,17 +11,17 @@ import java.util.stream.Collectors;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-class Strategies {
-	private final int
-			nearEmptyPrice = 21,
-			nearFriendPrice = 30,
-			nearEnemyPrice = -28,
-			nearWallPrice = 12,
-
-			farEmptyPrice = 17,
-			farFriendPrice = 19,
-			farEnemyPrice = -18,
-			farWallPrice = 16;
+public class Strategies {
+//	private final int
+//			nearEmptyPrice = 21,
+//			nearFriendPrice = 30,
+//			nearEnemyPrice = -28,
+//			nearWallPrice = 12,
+//
+//			farEmptyPrice = 17,
+//			farFriendPrice = 19,
+//			farEnemyPrice = -18,
+//			farWallPrice = 16;
 
 
 	private Random random;
@@ -33,7 +34,7 @@ class Strategies {
 	
 	private char myStatus, enemyStatus;
 	
-	Strategies() {
+	public Strategies() {
 		offensiveFlag = false;
 		random = new Random(new Date().getTime());
 		staticStart = new Coord[6];
@@ -268,73 +269,92 @@ class Strategies {
 	Coord defensive(){
 		return null;
 	}
-
-	private Coord fuzzy(){
-		int[][] priceMap = new int[9][9];
-		int max = -1000;
-		for (Chess[] x : ChessBoard.board) {
-			for (Chess item : x) {
-				if (item.status == 'e') {
-					int nearFriend = 0;
-					List<Coord> near8Chesses = item.coord.getNear8Coord(false);
-					for (Coord coord : near8Chesses) {
-						if (coord.isLegal()) {
-							if (ChessBoard.getChess(coord).status == 'e') {
-								priceMap[item.coord.x][item.coord.y] += nearEmptyPrice;     //空白
-							}
-							if (ChessBoard.getChess(coord).status == (myStatus)) {
-								priceMap[item.coord.x][item.coord.y] += nearFriendPrice;     //我方棋子
-								nearFriend++;
-							}
-							if (ChessBoard.getChess(coord).status == (enemyStatus)) {
-								priceMap[item.coord.x][item.coord.y] += nearEnemyPrice;     //对手棋子
-							}
-						} else {
-							priceMap[item.coord.x][item.coord.y] += nearWallPrice;         //棋盘边界
-							nearFriend++;
+	
+	private int[][] getAreaScore() {
+		int[][] areaScore = new int[3][3];
+		for (int mid_i = 0; mid_i < 3; mid_i++) {
+			for (int mid_j = 0; mid_j < 3; mid_j++) {
+				int tempCount = 0;
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						if (ChessBoard.board[mid_i * 3 + i][mid_j * 3 + j].status == myStatus) {
+							tempCount++;
 						}
 					}
-					List<Coord> near16Chesses = item.coord.getNear16Coord(false);
-					for (Coord coord : near16Chesses) {
-						if (coord.isLegal()) {
-							if (ChessBoard.getChess(coord).status == 'e') priceMap[item.coord.x][item.coord.y] += farEmptyPrice;
-							if (ChessBoard.getChess(coord).status == myStatus) priceMap[item.coord.x][item.coord.y] += farFriendPrice;
-							if (ChessBoard.getChess(coord).status == enemyStatus) priceMap[item.coord.x][item.coord.y] +=farEnemyPrice;
-						} else priceMap[item.coord.x][item.coord.y] += farWallPrice;
-					}
-					//防止自己填眼
-					if (nearFriend >= 3) {
-						priceMap[item.coord.x][item.coord.y] -= 500;
-					}
 				}
-				if (max < priceMap[item.coord.x][item.coord.y]) {
-					max = priceMap[item.coord.x][item.coord.y];
-				}
+				areaScore[mid_i][mid_j] = tempCount;
 			}
 		}
-		System.out.println("+=================================+");
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				System.out.print(priceMap[i][j] + "  ");
-				if(priceMap[i][j] == 0) System.out.print("  ");
-			}
-			System.out.println();
-		}
-		System.out.println("+=================================+");
-
-
-		if (max <= 0) return null;
-		int randCount = random.nextInt(81);
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				Chess item = ChessBoard.board[i][j];
-				if (item.status == 'e' && priceMap[item.coord.x][item.coord.y] == max) {
-					if(randCount == 0) return new Coord(i, j);
-					randCount--;
-				}
-			}
-			if(i == 8) i = 0;
-		}
+		return areaScore;
+	}
+	
+	private Coord fuzzy(){
+		int[][] areaScore = getAreaScore();
+//		int[][] priceMap = new int[9][9];
+//		int max = -1000;
+//		for (Chess[] x : ChessBoard.board) {
+//			for (Chess item : x) {
+//				if (item.status == 'e') {
+//					int nearFriend = 0;
+//					List<Coord> near8Chesses = item.coord.getNear8Coord(false);
+//					for (Coord coord : near8Chesses) {
+//						if (coord.isLegal()) {
+//							if (ChessBoard.getChess(coord).status == 'e') {
+//								priceMap[item.coord.x][item.coord.y] += nearEmptyPrice;     //空白
+//							}
+//							if (ChessBoard.getChess(coord).status == (myStatus)) {
+//								priceMap[item.coord.x][item.coord.y] += nearFriendPrice;     //我方棋子
+//								nearFriend++;
+//							}
+//							if (ChessBoard.getChess(coord).status == (enemyStatus)) {
+//								priceMap[item.coord.x][item.coord.y] += nearEnemyPrice;     //对手棋子
+//							}
+//						} else {
+//							priceMap[item.coord.x][item.coord.y] += nearWallPrice;         //棋盘边界
+//							nearFriend++;
+//						}
+//					}
+//					List<Coord> near16Chesses = item.coord.getNear16Coord(false);
+//					for (Coord coord : near16Chesses) {
+//						if (coord.isLegal()) {
+//							if (ChessBoard.getChess(coord).status == 'e') priceMap[item.coord.x][item.coord.y] += farEmptyPrice;
+//							if (ChessBoard.getChess(coord).status == myStatus) priceMap[item.coord.x][item.coord.y] += farFriendPrice;
+//							if (ChessBoard.getChess(coord).status == enemyStatus) priceMap[item.coord.x][item.coord.y] +=farEnemyPrice;
+//						} else priceMap[item.coord.x][item.coord.y] += farWallPrice;
+//					}
+//					//防止自己填眼
+//					if (nearFriend >= 3) {
+//						priceMap[item.coord.x][item.coord.y] -= 500;
+//					}
+//				}
+//				if (max < priceMap[item.coord.x][item.coord.y]) {
+//					max = priceMap[item.coord.x][item.coord.y];
+//				}
+//			}
+//		}
+//		System.out.println("+=================================+");
+//		for (int i = 0; i < 9; i++) {
+//			for (int j = 0; j < 9; j++) {
+//				System.out.print(priceMap[i][j] + "  ");
+//				if(priceMap[i][j] == 0) System.out.print("  ");
+//			}
+//			System.out.println();
+//		}
+//		System.out.println("+=================================+");
+//
+//
+//		if (max <= 0) return null;
+//		int randCount = random.nextInt(81);
+//		for (int i = 0; i < 9; i++) {
+//			for (int j = 0; j < 9; j++) {
+//				Chess item = ChessBoard.board[i][j];
+//				if (item.status == 'e' && priceMap[item.coord.x][item.coord.y] == max) {
+//					if(randCount == 0) return new Coord(i, j);
+//					randCount--;
+//				}
+//			}
+//			if(i == 8) i = 0;
+//		}
 		return null;
 	}
 
