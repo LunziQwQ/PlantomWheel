@@ -1,7 +1,10 @@
 package sample;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -12,7 +15,10 @@ import java.util.stream.Collectors;
  * ***********************************************
  */
 public class Strategies {
-//	private final int
+	private final int
+			centerCompleteCount = 7,
+			sideCompleteCount = 6,
+			angleCompleteCount = 5;
 //			nearEmptyPrice = 21,
 //			nearFriendPrice = 30,
 //			nearEnemyPrice = -28,
@@ -270,14 +276,14 @@ public class Strategies {
 		return null;
 	}
 	
-	private int[][] getAreaScore() {
+	private int[][] getAreaScore(boolean isMyStatus) {
 		int[][] areaScore = new int[3][3];
 		for (int mid_i = 0; mid_i < 3; mid_i++) {
 			for (int mid_j = 0; mid_j < 3; mid_j++) {
 				int tempCount = 0;
 				for (int i = 0; i < 3; i++) {
 					for (int j = 0; j < 3; j++) {
-						if (ChessBoard.board[mid_i * 3 + i][mid_j * 3 + j].status == myStatus) {
+						if (ChessBoard.board[mid_i * 3 + i][mid_j * 3 + j].status == (isMyStatus ? myStatus : enemyStatus)) {
 							tempCount++;
 						}
 					}
@@ -288,8 +294,80 @@ public class Strategies {
 		return areaScore;
 	}
 	
+	private Coord fuzzyMidArea(int midX, int midY) {
+		int directionX = midX - 1;
+		int directionY = midY - 1;
+		int midCenterX = midX * 3 + 1;
+		int midCenterY = midY * 3 + 1;
+		int[][] orderList = {
+				{midCenterX - directionX, midCenterY - directionY},
+				{midCenterX - directionX, midCenterY}, {midCenterX, midCenterY - directionY},
+				{midCenterX - directionX, midCenterY + directionY}, {midCenterX + directionX, midCenterY - directionY},
+				{midCenterX + directionX, midCenterY}, {midCenterX, midCenterY + directionY},
+				{midCenterX + directionX, midCenterY + directionY}
+		};
+		
+		Chess midCenter = ChessBoard.getChess(new Coord(midCenterX, midCenterY));
+		if (midCenter.status == 'e' && ChessBoard.getChesses(midCenter.coord.getNear4Coord(true)).stream().filter(x -> x.status == enemyStatus).count() <= 1) {
+			return midCenter.coord;
+		}
+		
+		//按orderlist顺序遍历，若存在相邻且不填眼则选择
+		for (int i = 0; i < 8; i++) {
+			Chess temp = ChessBoard.getChess(new Coord(orderList[i][0], orderList[i][1]));
+			if (temp.status == 'e') {
+				long nearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+				if (nearCount > 0 && nearCount < 3) {
+					return temp.coord;
+				}
+			}
+		}
+		
+		//若整个orderList都不存在相邻，重新遍历，选择不填眼的坐标
+		for (int i = 0; i < 8; i++) {
+			Chess temp = ChessBoard.getChess(new Coord(orderList[i][0], orderList[i][1]));
+			if (temp.status == 'e') {
+				long nearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+				if (nearCount < 3) {
+					return temp.coord;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private Coord checkMidSet(int[][] midSet,int completeCount) {
+		int[][] myAreaScore = getAreaScore(true);
+		int[][] enemyAreaScore = getAreaScore(false);
+		
+		for (int i = 0; i < midSet.length; i++) {
+			int tempX = midSet[i][0];
+			int tempY = midSet[i][1];
+			if (myAreaScore[tempX][tempY] < completeCount && enemyAreaScore[tempX][tempY] < completeCount) {
+				Coord tempCoord = fuzzyMidArea(tempX, tempY);
+				if(tempCoord != null) return tempCoord;
+			}
+		}
+		return null;
+	}
+	
 	private Coord fuzzy(){
-		int[][] areaScore = getAreaScore();
+		Coord result;
+		
+		//first check angle
+		int[][] angleSet = {{0, 0}, {2, 0}, {0, 2}, {2, 2}};
+		int[][] sideSet = {{0, 1}, {1, 0}, {2, 1}, {1, 2}};
+		int[][] centerSet = {{1, 1}};
+		
+		result = checkMidSet(angleSet, angleCompleteCount);
+		if(result !=null) return result;
+		
+		result = checkMidSet(sideSet, sideCompleteCount);
+		if(result !=null) return result;
+		
+		result = checkMidSet(centerSet, centerCompleteCount);
+		if(result != null) return result;
+		
 //		int[][] priceMap = new int[9][9];
 //		int max = -1000;
 //		for (Chess[] x : ChessBoard.board) {

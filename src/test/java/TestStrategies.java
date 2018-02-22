@@ -21,7 +21,9 @@ public class TestStrategies {
 		try {
 			Strategies strategies = new Strategies();
 			
-			Method method = strategies.getClass().getDeclaredMethod("getAreaScore");
+			Class[] args = new Class[1];
+			args[0] = boolean.class;
+			Method method = strategies.getClass().getDeclaredMethod("getAreaScore", args);
 			method.setAccessible(true);
 			
 			for (int i = 0; i < 9; i++) {
@@ -30,7 +32,7 @@ public class TestStrategies {
 				}
 			}
 			int[][] answer = {{9, 9, 9}, {9, 9, 9}, {9, 9, 9}};
-			int[][] testAnswer = (int[][]) method.invoke(strategies);
+			int[][] testAnswer = (int[][]) method.invoke(strategies, true);
 			Assert.assertArrayEquals(testAnswer, answer);
 		} catch (Exception e) {
 			e.printStackTrace();
