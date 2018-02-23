@@ -73,6 +73,7 @@ public class Strategies {
 	}
 	
 	Coord getStep() {
+		int nowStepCount = Integer.parseInt(MainFormController.stepCount.getValue());
 		Coord tempStep;
 
 		//静态开局
@@ -92,8 +93,14 @@ public class Strategies {
 				return fuzzy();
 			}
 		}
-
-		return fuzzy();
+		
+		if (nowStepCount > 25) {
+			tempStep = defensive();
+			if(tempStep != null) return tempStep;
+		}
+		
+		tempStep = fuzzy();
+		return tempStep != null ? tempStep : defensive();
 	}
 	
 	private Coord checkUnknown() {
@@ -245,23 +252,26 @@ public class Strategies {
 								}
 							}
 						} else {        //distance = 2
+							Coord temp;
+							
 							if (Math.abs(item.coord.x - friend.x) == 2 && Math.abs(item.coord.y - friend.y) == 2)
 								continue;
 							if (Math.abs(item.coord.x - friend.x) == 2) {
 								if (friend.x - item.coord.x > 0
-										&& ChessBoard.board[friend.x - 1][friend.y]
-										.canSet(Main.isBlackPlayer))
-									return new Coord(friend.x - 1, friend.y);
-								else if (ChessBoard.board[friend.x + 1][friend.y]
-										.canSet(Main.isBlackPlayer))
-									return new Coord(friend.x + 1, friend.y);
+										&& (temp = new Coord(friend.x - 1, friend.y)).isLegal()
+										&& ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
+									return temp;
+								} else if ((temp = new Coord(friend.x + 1, friend.y)).isLegal()
+										&& ChessBoard.getChess(temp).canSet(Main.isBlackPlayer))
+									return temp;
 							} else {
 								if (friend.y - item.coord.y > 0) {
-									if (ChessBoard.board[friend.x][friend.y - 1]
-											.canSet(Main.isBlackPlayer))
-										return new Coord(friend.x, friend.y - 1);
-								} else if (ChessBoard.board[friend.x][friend.y + 1].canSet(Main.isBlackPlayer)) {
-									return new Coord(friend.x, friend.y + 1);
+									if ((temp = new Coord(friend.x, friend.y-1)).isLegal()
+											&& ChessBoard.getChess(temp).canSet(Main.isBlackPlayer))
+										return  temp;
+								} else if ((temp = new Coord(friend.x, friend.y+1)).isLegal()
+										&& ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
+									return temp;
 								}
 							}
 						}
@@ -271,8 +281,61 @@ public class Strategies {
 		}
 		return null;
 	}
-
-	Coord defensive(){
+	
+	private Coord defensive() {
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				Chess temp = ChessBoard.board[i][j];
+				if (temp.status == myStatus) {
+					if (temp.group == null) {
+						for (Chess x : ChessBoard.getChesses(temp.coord.getNear8Coord(true))) {
+							if (x.status == myStatus) {
+								Coord dir = new Coord(x.coord.x - temp.coord.x, x.coord.y - temp.coord.y);
+								Coord connect = new Coord(temp.coord.x + dir.x, temp.coord.y);
+								if (ChessBoard.getChess(connect).status == 'e') {
+									return connect;
+								}
+								connect = new Coord(x.coord.x, x.coord.y + dir.y);
+								if (ChessBoard.getChess(connect).status == 'e') {
+									return connect;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				Chess temp = ChessBoard.board[i][j];
+				if (temp.status == 'e') {
+					long friendNearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+					if (friendNearCount >= (long) ChessBoard.getChesses(temp.coord.getNear4Coord(true)).size() - 2) {
+						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear4Coord(true))) {
+							if (chess.status == 'e') {
+								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
+									return chess.coord;
+								}
+							}
+						}
+					}
+					friendNearCount = ChessBoard.getChesses(temp.coord.getNear8Coord(true)).stream().filter(x -> x.status == myStatus).count();
+					if (friendNearCount < (long) ChessBoard.getChesses(temp.coord.getNear8Coord(true)).size() - 1) {
+						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear8Coord(true))) {
+							if (chess.status == 'e') {
+								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
+									return chess.coord;
+								}
+							}
+						}
+					}
+				}
+				
+			}
+		}
 		return null;
 	}
 	
@@ -317,7 +380,7 @@ public class Strategies {
 			Chess temp = ChessBoard.getChess(new Coord(orderList[i][0], orderList[i][1]));
 			if (temp.status == 'e') {
 				long nearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-				if (nearCount > 0 && nearCount < 3) {
+				if (nearCount > 0 && nearCount < 2) {
 					return temp.coord;
 				}
 			}
@@ -328,7 +391,7 @@ public class Strategies {
 			Chess temp = ChessBoard.getChess(new Coord(orderList[i][0], orderList[i][1]));
 			if (temp.status == 'e') {
 				long nearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-				if (nearCount < 3) {
+				if (nearCount < 2) {
 					return temp.coord;
 				}
 			}
@@ -340,12 +403,12 @@ public class Strategies {
 		int[][] myAreaScore = getAreaScore(true);
 		int[][] enemyAreaScore = getAreaScore(false);
 		
-		for (int i = 0; i < midSet.length; i++) {
-			int tempX = midSet[i][0];
-			int tempY = midSet[i][1];
+		for (int[] aMidSet : midSet) {
+			int tempX = aMidSet[0];
+			int tempY = aMidSet[1];
 			if (myAreaScore[tempX][tempY] < completeCount && enemyAreaScore[tempX][tempY] < completeCount) {
 				Coord tempCoord = fuzzyMidArea(tempX, tempY);
-				if(tempCoord != null) return tempCoord;
+				if (tempCoord != null) return tempCoord;
 			}
 		}
 		return null;
@@ -438,7 +501,6 @@ public class Strategies {
 
 	//进攻型策略，围杀，当得到Oops或oops指令时，激活offensiveFlag，若无可落子进攻位置，取消flag，采用其他策略
 	//TODO: 防御性策略，扫描自己的气与Group，尽可能的连接group，在不存在两个活眼的地方补子
-	//TODO: Fuzzy()，模糊评估策略，将棋盘分为九个区域，根据区域己方棋子数量决定势力判断，选择区域落子。
 	//FIXME: 测试发现的特殊情况，当尝试落子自身group的最后一个气眼失败时，认定为敌方棋子（加判定or防止填眼）、建议后者
 	//FIXME: 进攻flag可以让策略函数自行检测，不需要手动维护flag
 }

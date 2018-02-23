@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainFormController {
-	private static StringProperty stepCount = new SimpleStringProperty("0");
+	static StringProperty stepCount = new SimpleStringProperty("0");
 	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
 	private Strategies strategies = new Strategies();
 	private Coord stepCache;
