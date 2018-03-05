@@ -32,7 +32,7 @@ public class TestHistory {
 		Assert.assertNotNull(path);
 		
 		History forLoad = new History();
-		forLoad.load(path);
+		Assert.assertTrue(forLoad.load(path));
 		
 		Assert.assertEquals(forLoad, history);
 	}

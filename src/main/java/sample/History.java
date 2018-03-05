@@ -1,8 +1,14 @@
 package sample;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * ***********************************************
@@ -13,6 +19,8 @@ import java.util.*;
  */
 public class History implements Serializable {
 	public List<HistoryStep> history;
+	ObservableList<String> historyTextList = FXCollections.observableArrayList();
+	
 	
 	@Override
 	public boolean equals(Object o) {
@@ -64,6 +72,11 @@ public class History implements Serializable {
 		return true;
 	}
 	
+	public void addStep(Coord coord, String behavior) {
+		HistoryStep temp = new HistoryStep(coord, behavior, ChessBoard.board);
+		history.add(temp);
+		historyTextList.add(behavior + (behavior.equals("capture") ? ": " : ":" + coord.toString()));
+	}
 	private void writeObject(ObjectOutputStream oos) {
 		try {
 			oos.writeObject(history.toArray(new HistoryStep[history.size()]));

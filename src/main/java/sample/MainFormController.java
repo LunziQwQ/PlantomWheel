@@ -7,9 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -25,11 +23,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MainFormController {
 	static StringProperty stepCount = new SimpleStringProperty("0");
 	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
-	private Strategies strategies = new Strategies();
-	private Coord stepCache;
 	
+	private Coord stepCache;
 	private GraphicsContext mainGC;
 	private GraphicsContext captureGC;
+	
+	private Strategies strategies = new Strategies();
+	private History history = new History();
 	
 	@FXML
 	private Label actionLabel;
@@ -47,6 +47,9 @@ public class MainFormController {
 	private Button captureBtn;
 	
 	@FXML
+	private Button applyBtn;
+	
+	@FXML
 	private AnchorPane chessboardUI;
 	
 	@FXML
@@ -54,6 +57,12 @@ public class MainFormController {
 	
 	@FXML
 	private TextArea console;
+	
+	@FXML
+	private ListView<String> historyListView;
+	
+	@FXML
+	private CheckBox reviewCheckBox;
 	
 	private Coord mousePos = new Coord(0, 0);
 	
@@ -90,6 +99,7 @@ public class MainFormController {
 						captureCoords.remove(item.coord);
 					});
 				}
+				history.addStep(null, "capture");
 			}
 		}
 	}
@@ -119,8 +129,9 @@ public class MainFormController {
 	@FXML
 	void legalOnClick() {
 		ChessBoard.getChess(stepCache).setChess(Main.isBlackPlayer ? 'b' : 'w');
-		drawChessBoard();
+		drawChessBoard(ChessBoard.board);
 		console.appendText("legal.\n");
+		history.addStep(stepCache, "legal");
 		stepCache = null;
 		stepCount.setValue(String.valueOf(Integer.valueOf(stepCount.getValue()) + 1));
 		captureBtn.setDisable(false);
@@ -133,8 +144,9 @@ public class MainFormController {
 	@FXML
 	void illegalOnClick(MouseEvent event) {
 		ChessBoard.getChess(stepCache).setChess('?');
+		history.addStep(stepCache, "illegal");
 		strategies.offensiveFlag = true;
-		drawChessBoard();
+		drawChessBoard(ChessBoard.board);
 		console.appendText("illegal.\n");
 		getStepOnClick();
 	}
@@ -162,7 +174,7 @@ public class MainFormController {
 				}
 				chess.capture();
 			}
-			drawChessBoard();
+			drawChessBoard(ChessBoard.board);
 			captureBtn.setText("Capture");
 			getStepBtn.setDisable(false);
 			runningCapture.set(false);
@@ -170,10 +182,20 @@ public class MainFormController {
 		}
 	}
 	
+	@FXML
+	private void reviewOnClicked(){
+		if (reviewCheckBox.isSelected()) {
+			historyListView.setVisible(true);
+		} else {
+			historyListView.setVisible(false);
+			drawChessBoard(ChessBoard.board);
+		}
+	}
+	
 	public void initialize() {
 		//Make the console always scroll to the bottom
 		this.console.textProperty().addListener((ObservableValue<? extends String> observableValue, String oldValue, String newValue) -> this.console.setScrollTop(1.7976931348623157E308D));
-		
+		historyListView.setItems(history.historyTextList);
 		new ChessBoard();
 		drawChessBoardBase();
 		stepCountLabel.textProperty().bind(stepCount);
@@ -221,9 +243,9 @@ public class MainFormController {
 		captureGC.setStroke(Color.RED);
 	}
 	
-	private void drawChessBoard() {
+	private void drawChessBoard(Chess[][] board) {
 		mainGC.clearRect(0,0,600,600);
-		for (Chess[] chesses : ChessBoard.board) {
+		for (Chess[] chesses : board) {
 			for (Chess chess : chesses) {
 				drawChessShape(chess.coord, chess.status);
 			}
@@ -274,6 +296,7 @@ public class MainFormController {
 	private Coord mousePosToChessCoord(Coord mousePos) {
 		return new Coord((int) ((mousePos.x - 20) / 62.5), (int) ((mousePos.y - 20) / 62.5));
 	}
+	
 	
 	private AtomicBoolean runningCapture = new AtomicBoolean(false);
 	private volatile List<Coord> captureCoords = new ArrayList<>();
