@@ -12,6 +12,22 @@ import java.util.List;
  */
 public class ChessBoard {
 	public static Chess[][] board;
+	public static void print(Chess[][] board) {
+		for (int i = 0; i < 9; i++) {
+			if (i == 0) {
+				System.out.print("   ");
+				for (int j = 0; j < 9; j++)
+					System.out.print((char)(j + 'A') + "  ");
+				System.out.println();
+			}
+			for (int j = 0; j < 9; j++) {
+				if (j == 0)
+					System.out.print(i+1+"  ");
+				System.out.print(board[i][j].status + "  ");
+			}
+			System.out.println();
+		}
+	}
 	
 	public ChessBoard() {
 		int size = 9;
@@ -32,5 +48,7 @@ public class ChessBoard {
 		coords.forEach(x -> result.add(getChess(x)));
 		return result;
 	}
+	
+	
 }
 

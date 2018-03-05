@@ -11,7 +11,7 @@ import java.util.List;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-class Group implements Serializable{
+class Group implements Serializable, Cloneable {
 	int health = 0;
 	private char status;
 	

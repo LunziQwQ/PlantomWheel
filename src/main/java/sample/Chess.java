@@ -10,7 +10,7 @@ import java.util.List;
  * Not allowed to copy without permission.
  * ***********************************************
  */
-public class Chess implements Serializable {
+public class Chess implements Serializable, Cloneable {
 	Coord coord;
 	int health;
 	char status;       //b黑, w白, e为空, ?为空但不可用
@@ -58,7 +58,7 @@ public class Chess implements Serializable {
 					}
 				}
 			} else {
-				if(x.group!=null) x.group.update();
+				if (x.group != null) x.group.update();
 			}
 		}
 	}
@@ -77,7 +77,7 @@ public class Chess implements Serializable {
 		//检查附近是否有unknow棋子，确定状态
 		if (status == (Main.isBlackPlayer ? 'b' : 'w')) {
 			ChessBoard.getChesses(coord.getNear4Coord(true))
-					.stream().filter(x -> x.status == '?').forEach(x->x.status = (Main.isBlackPlayer ? 'w' : 'b'));
+					.stream().filter(x -> x.status == '?').forEach(x -> x.status = (Main.isBlackPlayer ? 'w' : 'b'));
 		}
 		
 		

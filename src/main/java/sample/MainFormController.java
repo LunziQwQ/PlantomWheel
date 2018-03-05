@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+//TODO:为Chess，Group，以及Group内的HashMap增加Copy方法，实现ChessBoard完全深拷贝
+//TODO:将offensiveFlag与Controller解耦合，防止悔棋后影响flag。
 public class MainFormController {
 	static StringProperty stepCount = new SimpleStringProperty("0");
 	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
@@ -66,7 +68,8 @@ public class MainFormController {
 	
 	private Coord mousePos = new Coord(0, 0);
 	
-	@FXML	//Always get the mouse position
+	@FXML
+		//Always get the mouse position
 	void getMousePos(MouseEvent event) {
 		mousePos = new Coord((int) event.getX(), (int) event.getY());
 		Main.gameStage.setTitle("PlantomWheel  --> " + (Main.isBlackPlayer ? "Black" : "White") + " player" +
@@ -74,7 +77,7 @@ public class MainFormController {
 	}
 	
 	@FXML
-	void captureRunningOnClick(){
+	void captureRunningOnClick() {
 		mainGC.setStroke(Color.RED);
 		if (runningCapture.get()) {
 			Chess temp = ChessBoard.getChess(mousePosToChessCoord(mousePos));
@@ -84,9 +87,9 @@ public class MainFormController {
 					captureCoords.add(temp.coord);
 					
 				} else {
-					temp.group.chesses.forEach(item->{
+					temp.group.chesses.forEach(item -> {
 						drawChessBorder(item.coord, mainGC);
-							captureCoords.add(item.coord);
+						captureCoords.add(item.coord);
 					});
 				}
 			} else {
@@ -94,12 +97,11 @@ public class MainFormController {
 					drawChessShape(temp.coord, temp.status);
 					captureCoords.remove(temp.coord);
 				} else {
-					temp.group.chesses.forEach(item->{
+					temp.group.chesses.forEach(item -> {
 						drawChessShape(item.coord, item.status);
 						captureCoords.remove(item.coord);
 					});
 				}
-				history.addStep(null, "capture");
 			}
 		}
 	}
@@ -117,7 +119,7 @@ public class MainFormController {
 		}
 		drawChessShape(stepCache, 't');
 		
-		console.appendText("--> Try: " + stepCache.toString()+" : ");
+		console.appendText("--> Try: " + stepCache.toString() + " : ");
 		getStepBtn.setDisable(true);
 		captureBtn.setDisable(true);
 		legalBtn.setDisable(false);
@@ -152,10 +154,8 @@ public class MainFormController {
 	}
 	
 	
-	
 	@FXML
 	void captureOnClick() {
-		
 		if (!runningCapture.get()) {
 			nowStatus.set("Capturing...");
 			captureCoords.clear();
@@ -166,13 +166,14 @@ public class MainFormController {
 		} else {
 			if (captureCoords.size() > 0) {
 				strategies.offensiveFlag = true;
-			}
-			for (int i = 0; i < captureCoords.size(); i++) {
-				Chess chess = ChessBoard.getChess(captureCoords.get(i));
-				if (chess.group != null) {
-					chess.group.chesses.forEach(item -> captureCoords.remove(item.coord));
+				for (int i = 0; i < captureCoords.size(); i++) {
+					Chess chess = ChessBoard.getChess(captureCoords.get(i));
+					if (chess.group != null) {
+						chess.group.chesses.forEach(item -> captureCoords.remove(item.coord));
+					}
+					chess.capture();
 				}
-				chess.capture();
+				history.addStep(null, "capture");
 			}
 			drawChessBoard(ChessBoard.board);
 			captureBtn.setText("Capture");
@@ -183,7 +184,7 @@ public class MainFormController {
 	}
 	
 	@FXML
-	private void reviewOnClicked(){
+	private void reviewOnClicked() {
 		if (reviewCheckBox.isSelected()) {
 			historyListView.setVisible(true);
 		} else {
@@ -192,16 +193,36 @@ public class MainFormController {
 		}
 	}
 	
+	@FXML
+	private void applyOnClicked() {
+		int index = historyListView.getSelectionModel().selectedIndexProperty().getValue();
+		ChessBoard.board = history.history.get(index).board;
+		while (history.history.size() > index) {
+			history.history.remove(index);
+		}
+	}
+	
+	private void historyIsSelected(String value) {
+		Platform.runLater(() -> drawChessBoard(
+				history.history.get(Integer.valueOf(value.split("\\. ")[0]) - 1).board
+		));
+	}
+	
 	public void initialize() {
 		//Make the console always scroll to the bottom
-		this.console.textProperty().addListener((ObservableValue<? extends String> observableValue, String oldValue, String newValue) -> this.console.setScrollTop(1.7976931348623157E308D));
+		this.console.textProperty().addListener(
+				(ObservableValue<? extends String> observableValue, String oldValue, String newValue)
+						-> this.console.setScrollTop(1.7976931348623157E308D));
 		historyListView.setItems(history.historyTextList);
+		historyListView.getSelectionModel().selectedItemProperty().addListener(
+				(ObservableValue<? extends String> observable, String oldValue, String newValue)
+						-> historyIsSelected(newValue));
 		new ChessBoard();
 		drawChessBoardBase();
 		stepCountLabel.textProperty().bind(stepCount);
 		actionLabel.textProperty().bind(nowStatus);
 		console.appendText("Game is start. I'm " + (Main.isBlackPlayer ? "black player" : "white player") + "\n");
-
+		
 	}
 	
 	private void drawChessBoardBase() {
@@ -244,7 +265,7 @@ public class MainFormController {
 	}
 	
 	private void drawChessBoard(Chess[][] board) {
-		mainGC.clearRect(0,0,600,600);
+		mainGC.clearRect(0, 0, 600, 600);
 		for (Chess[] chesses : board) {
 			for (Chess chess : chesses) {
 				drawChessShape(chess.coord, chess.status);
@@ -257,7 +278,7 @@ public class MainFormController {
 		double centerY = 20 + 62.5 * (coord.y);
 		boolean drawMark = false;
 		
-		mainGC.clearRect(centerX-1, centerY-1, 62.5, 62.5);
+		mainGC.clearRect(centerX - 1, centerY - 1, 62.5, 62.5);
 		switch (status) {
 			case 'b':
 				mainGC.setFill(Color.BLACK);
@@ -278,7 +299,7 @@ public class MainFormController {
 				return;
 		}
 		mainGC.fillRoundRect(centerX, centerY, 60, 60, 60, 60);
-		if(drawMark){
+		if (drawMark) {
 			mainGC.setFill(Color.RED);
 			mainGC.fillText("?", centerX + 20, centerY + 47);
 		}
@@ -300,7 +321,8 @@ public class MainFormController {
 	
 	private AtomicBoolean runningCapture = new AtomicBoolean(false);
 	private volatile List<Coord> captureCoords = new ArrayList<>();
-	private void runCapture(){
+	
+	private void runCapture() {
 		new Thread(() -> {
 			while (true) {
 				if (runningCapture.get()) {

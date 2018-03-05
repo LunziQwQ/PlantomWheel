@@ -46,7 +46,6 @@ public class History implements Serializable {
 		}
 		return false;
 	}
-	//TODO: 增加回退功能，右侧操作区新增选项卡，显示历史操作，点击渲染该步棋盘，复盘功能
 	
 	public String save(String name) {
 		String path = "E:/replay/" + name + new SimpleDateFormat("_yyyy_MM_dd_(HH_mm_ss)").format(new Date()) + ".rep";
@@ -75,7 +74,8 @@ public class History implements Serializable {
 	public void addStep(Coord coord, String behavior) {
 		HistoryStep temp = new HistoryStep(coord, behavior, ChessBoard.board);
 		history.add(temp);
-		historyTextList.add(behavior + (behavior.equals("capture") ? ": " : ":" + coord.toString()));
+		historyTextList.add(history.size() + ". "
+				+ behavior + (behavior.equals("capture") ? ": some chesses" : ": " + coord.toString()));
 	}
 	private void writeObject(ObjectOutputStream oos) {
 		try {
