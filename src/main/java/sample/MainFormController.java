@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-//TODO:将offensiveFlag与Controller解耦合，防止悔棋后影响flag。
 public class MainFormController {
 	static StringProperty stepCount = new SimpleStringProperty("0");
 	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
@@ -148,7 +147,6 @@ public class MainFormController {
 	void illegalOnClick(MouseEvent event) {
 		ChessBoard.getChess(stepCache).setChess('?');
 		history.addStep(stepCache, "illegal");
-		strategies.offensiveFlag = true;
 		drawChessBoard(ChessBoard.board);
 		console.appendText("illegal.\n");
 		getStepOnClick();
@@ -167,7 +165,6 @@ public class MainFormController {
 			runCapture();
 		} else {
 			if (captureCoords.size() > 0) {
-				strategies.offensiveFlag = true;
 				for (int i = 0; i < captureCoords.size(); i++) {
 					Chess chess = ChessBoard.getChess(captureCoords.get(i));
 					if (chess.group != null) {

@@ -18,7 +18,8 @@ public class Strategies {
 	private final int
 			centerCompleteCount = 7,
 			sideCompleteCount = 6,
-			angleCompleteCount = 5;
+			angleCompleteCount = 5,
+			defenciveOpenStep = 27;
 //			nearEmptyPrice = 21,
 //			nearFriendPrice = 30,
 //			nearEnemyPrice = -28,
@@ -32,14 +33,11 @@ public class Strategies {
 
 	private Random random;
 
-	boolean offensiveFlag;
-
 	private Coord[] staticStart;
 	
 	private char myStatus, enemyStatus;
 	
 	public Strategies() {
-		offensiveFlag = false;
 		random = new Random(new Date().getTime());
 		staticStart = new Coord[6];
 		createRandomStart();
@@ -81,19 +79,13 @@ public class Strategies {
 		if(checkUnknown() != null)
 			return tempStep;
 		
-		if (offensiveFlag) {
-			tempStep = offensive();
-			if (tempStep != null) return tempStep;
-			else{
-				offensiveFlag = false;
-				return fuzzy();
-			}
-		}
-		
-		if (nowStepCount > 25) {
+		if (nowStepCount > defenciveOpenStep) {
 			tempStep = defensive();
 			if(tempStep != null) return tempStep;
 		}
+		
+		tempStep = offensive();
+		if (tempStep != null) return tempStep;
 		
 		tempStep = fuzzy();
 		return tempStep != null ? tempStep : defensive();
