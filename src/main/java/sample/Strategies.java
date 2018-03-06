@@ -36,8 +36,6 @@ public class Strategies {
 
 	private Coord[] staticStart;
 	
-	private int staticStep = -1;
-	
 	private char myStatus, enemyStatus;
 	
 	public Strategies() {
@@ -64,20 +62,18 @@ public class Strategies {
 	}
 	
 	private Coord staticOpen(){
-		Coord temp = staticStart[staticStep+1];
-		while (!ChessBoard.getChess(temp).canSet(Main.isBlackPlayer)) {
+		int staticStep = 0;
+		while (!ChessBoard.getChess(staticStart[staticStep]).canSet(Main.isBlackPlayer)) {
 			staticStep++;
 		}
-		staticStep++;
 		return staticStart[staticStep];
 	}
 	
 	Coord getStep() {
 		int nowStepCount = Integer.parseInt(MainFormController.stepCount.getValue());
 		Coord tempStep;
-
 		//静态开局
-		if (staticStep < 5) {
+		if (nowStepCount < 6) {
 			return staticOpen();
 		}
 		

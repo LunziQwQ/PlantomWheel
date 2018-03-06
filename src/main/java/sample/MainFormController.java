@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO:将offensiveFlag与Controller解耦合，防止悔棋后影响flag。
-//TODO:fix the stepCount cant save with history
 public class MainFormController {
 	static StringProperty stepCount = new SimpleStringProperty("0");
 	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
@@ -194,6 +193,10 @@ public class MainFormController {
 			applyBtn.setVisible(true);
 			getStepBtn.setDisable(true);
 			captureBtn.setDisable(true);
+			if (history.history.size() > 0) {
+				historyListView.getSelectionModel().select(history.history.size() - 1);
+				historyIsSelected();
+			}
 		} else {
 			historyListView.setVisible(false);
 			applyBtn.setVisible(false);
@@ -205,7 +208,7 @@ public class MainFormController {
 	
 	@FXML
 	private void applyOnClicked() {
-		int index = historyListView.getSelectionModel().selectedIndexProperty().getValue();
+		int index = historyListView.getSelectionModel().getSelectedIndex();
 		try {
 			ChessBoard.board = ChessBoard.cloneBoard(history.history.get(index).board);
 			for (Chess[] chesses : ChessBoard.board) {
@@ -216,16 +219,17 @@ public class MainFormController {
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
+		int legalCount = 0;
 		for (int i = history.history.size() - 1; i > index; i--) {
+			if (history.history.get(i).behavior.equals("legal")) legalCount++;
 			history.removeStep(i);
 		}
+		stepCount.setValue(String.valueOf(Integer.valueOf(stepCount.getValue()) - legalCount));
 	}
 	
-	private void historyIsSelected(String value) {
-		int index = historyListView.getSelectionModel().selectedIndexProperty().getValue();
-		Platform.runLater(() -> drawChessBoard(
-				history.history.get(index).board
-		));
+	private void historyIsSelected() {
+		int index = historyListView.getSelectionModel().getSelectedIndex();
+		Platform.runLater(() -> drawChessBoard(history.history.get(index).board));
 	}
 	
 	public void initialize() {
@@ -236,7 +240,7 @@ public class MainFormController {
 		historyListView.setItems(history.historyTextList);
 		historyListView.getSelectionModel().selectedItemProperty().addListener(
 				(ObservableValue<? extends String> observable, String oldValue, String newValue)
-						-> historyIsSelected(newValue));
+						-> historyIsSelected());
 		new ChessBoard();
 		drawChessBoardBase();
 		stepCountLabel.textProperty().bind(stepCount);
