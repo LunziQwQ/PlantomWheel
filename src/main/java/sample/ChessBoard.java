@@ -12,17 +12,28 @@ import java.util.List;
  */
 public class ChessBoard {
 	public static Chess[][] board;
+	
+	public static Chess[][] cloneBoard(Chess[][] srcBoard) throws CloneNotSupportedException{
+		Chess[][] temp = new Chess[9][9];
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				temp[i][j] = (Chess) srcBoard[i][j].clone();
+			}
+		}
+		return temp;
+	}
+	
 	public static void print(Chess[][] board) {
 		for (int i = 0; i < 9; i++) {
 			if (i == 0) {
 				System.out.print("   ");
 				for (int j = 0; j < 9; j++)
-					System.out.print((char)(j + 'A') + "  ");
+					System.out.print((char) (j + 'A') + "  ");
 				System.out.println();
 			}
 			for (int j = 0; j < 9; j++) {
 				if (j == 0)
-					System.out.print(i+1+"  ");
+					System.out.print(i + 1 + "  ");
 				System.out.print(board[i][j].status + "  ");
 			}
 			System.out.println();

@@ -74,9 +74,14 @@ public class History implements Serializable {
 	public void addStep(Coord coord, String behavior) {
 		HistoryStep temp = new HistoryStep(coord, behavior, ChessBoard.board);
 		history.add(temp);
-		historyTextList.add(history.size() + ". "
-				+ behavior + (behavior.equals("capture") ? ": some chesses" : ": " + coord.toString()));
+		historyTextList.add(behavior + (behavior.equals("capture") ? ": some chesses" : ": " + coord.toString()));
 	}
+	
+	public void removeStep(int index){
+		history.remove(index);
+		historyTextList.remove(index);
+	}
+	
 	private void writeObject(ObjectOutputStream oos) {
 		try {
 			oos.writeObject(history.toArray(new HistoryStep[history.size()]));

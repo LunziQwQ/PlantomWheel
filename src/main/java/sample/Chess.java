@@ -21,13 +21,13 @@ public class Chess implements Serializable, Cloneable {
 		this.status = status;
 	}
 	
-	Chess(Coord coord, char status) {
+	private Chess(Coord coord, char status) {
 		this.coord = coord;
 		this.status = status;
 	}
 	
 	//更新本棋子的信息
-	private void update() {
+	public void update() {
 		if (status == 'b' || status == 'w') {
 			updateGroup();
 			updateHealth();
@@ -160,7 +160,14 @@ public class Chess implements Serializable, Cloneable {
 					return true;
 			}
 		}
-		
 		return false;
+	}
+	
+	@Override
+	protected Object clone() {
+		Chess temp = new Chess((Coord) this.coord.clone(), this.status);
+		temp.health = this.health;
+//		if (this.group != null) temp.group = (Group)this.group.clone();
+		return temp;
 	}
 }

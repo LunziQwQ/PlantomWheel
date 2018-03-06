@@ -27,7 +27,10 @@ public class Coord implements Serializable {
 			{-2, -2}, {-2, -1}, {-2, 0}, {-2, 1}
 	};
 	
-	
+	@Override
+	protected Object clone() {
+		return new Coord(this);
+	}
 	
 	public Coord(int x, int y) {
 		this.x = x;

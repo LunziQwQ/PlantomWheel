@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-//TODO:为Chess，Group，以及Group内的HashMap增加Copy方法，实现ChessBoard完全深拷贝
 //TODO:将offensiveFlag与Controller解耦合，防止悔棋后影响flag。
+//TODO:fix the stepCount cant save with history
 public class MainFormController {
 	static StringProperty stepCount = new SimpleStringProperty("0");
 	private static StringProperty nowStatus = new SimpleStringProperty("Waiting...");
@@ -124,6 +124,7 @@ public class MainFormController {
 		captureBtn.setDisable(true);
 		legalBtn.setDisable(false);
 		illegalBtn.setDisable(false);
+		reviewCheckBox.setDisable(true);
 		nowStatus.set("Waiting judge...");
 	}
 	
@@ -138,6 +139,7 @@ public class MainFormController {
 		stepCount.setValue(String.valueOf(Integer.valueOf(stepCount.getValue()) + 1));
 		captureBtn.setDisable(false);
 		getStepBtn.setDisable(false);
+		reviewCheckBox.setDisable(false);
 		legalBtn.setDisable(true);
 		illegalBtn.setDisable(true);
 		nowStatus.set("Waiting...");
@@ -161,6 +163,7 @@ public class MainFormController {
 			captureCoords.clear();
 			captureBtn.setText("Finish");
 			getStepBtn.setDisable(true);
+			reviewCheckBox.setDisable(true);
 			runningCapture.set(true);
 			runCapture();
 		} else {
@@ -179,6 +182,7 @@ public class MainFormController {
 			captureBtn.setText("Capture");
 			getStepBtn.setDisable(false);
 			runningCapture.set(false);
+			reviewCheckBox.setDisable(false);
 			nowStatus.set("Waiting...");
 		}
 	}
@@ -187,8 +191,14 @@ public class MainFormController {
 	private void reviewOnClicked() {
 		if (reviewCheckBox.isSelected()) {
 			historyListView.setVisible(true);
+			applyBtn.setVisible(true);
+			getStepBtn.setDisable(true);
+			captureBtn.setDisable(true);
 		} else {
 			historyListView.setVisible(false);
+			applyBtn.setVisible(false);
+			getStepBtn.setDisable(false);
+			captureBtn.setDisable(false);
 			drawChessBoard(ChessBoard.board);
 		}
 	}
@@ -196,15 +206,25 @@ public class MainFormController {
 	@FXML
 	private void applyOnClicked() {
 		int index = historyListView.getSelectionModel().selectedIndexProperty().getValue();
-		ChessBoard.board = history.history.get(index).board;
-		while (history.history.size() > index) {
-			history.history.remove(index);
+		try {
+			ChessBoard.board = ChessBoard.cloneBoard(history.history.get(index).board);
+			for (Chess[] chesses : ChessBoard.board) {
+				for (Chess chess : chesses) {
+					chess.update();
+				}
+			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		for (int i = history.history.size() - 1; i > index; i--) {
+			history.removeStep(i);
 		}
 	}
 	
 	private void historyIsSelected(String value) {
+		int index = historyListView.getSelectionModel().selectedIndexProperty().getValue();
 		Platform.runLater(() -> drawChessBoard(
-				history.history.get(Integer.valueOf(value.split("\\. ")[0]) - 1).board
+				history.history.get(index).board
 		));
 	}
 	
