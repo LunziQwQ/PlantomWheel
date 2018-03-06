@@ -61,7 +61,8 @@ public class Strategies {
 	
 	private Coord staticOpen(){
 		int staticStep = 0;
-		while (!ChessBoard.getChess(staticStart[staticStep]).canSet(Main.isBlackPlayer)) {
+		while (!ChessBoard.getChess(staticStart[staticStep]).canSet(Main.isBlackPlayer)
+				|| ChessBoard.getChess(staticStart[staticStep]).status == '?') {
 			staticStep++;
 		}
 		return staticStart[staticStep];
