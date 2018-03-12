@@ -64,6 +64,7 @@ public class Strategies {
 		while (!ChessBoard.getChess(staticStart[staticStep]).canSet(Main.isBlackPlayer)
 				|| ChessBoard.getChess(staticStart[staticStep]).status == '?') {
 			staticStep++;
+			if(staticStep >= 6) return null;
 		}
 		return staticStart[staticStep];
 	}
@@ -73,7 +74,8 @@ public class Strategies {
 		Coord tempStep;
 		//静态开局
 		if (nowStepCount < 6) {
-			return staticOpen();
+			tempStep = staticOpen();
+			if(tempStep != null) return tempStep;
 		}
 		
 		tempStep = checkUnknown();
