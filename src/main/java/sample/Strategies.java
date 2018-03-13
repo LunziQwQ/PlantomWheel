@@ -283,6 +283,7 @@ public class Strategies {
 							if (x.status == myStatus) {
 								Coord dir = new Coord(x.coord.x - temp.coord.x, x.coord.y - temp.coord.y);
 								Coord connect = new Coord(temp.coord.x + dir.x, temp.coord.y);
+								if(!connect.isLegal()) continue;
 								if (ChessBoard.getChess(connect).status == 'e') {
 									return connect;
 								}
