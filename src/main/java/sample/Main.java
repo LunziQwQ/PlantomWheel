@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 public class Main extends Application {
     
     public static boolean isBlackPlayer;        //存储选定的黑方白方
+    public static boolean isAiMode;
+    public static History history = new History();
     static Stage gameStage;
     
     @Override

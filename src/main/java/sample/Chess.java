@@ -170,4 +170,14 @@ public class Chess implements Serializable, Cloneable {
 //		if (this.group != null) temp.group = (Group)this.group.clone();
 		return temp;
 	}
+	
+	@Override
+	public String toString() {
+		return "Chess{" +
+				"coord=" + coord +
+				", health=" + health +
+				", status=" + status +
+				", group=" + group +
+				'}';
+	}
 }

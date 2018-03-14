@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class History implements Serializable {
 	public List<HistoryStep> history;
-	ObservableList<String> historyTextList = FXCollections.observableArrayList();
+	transient ObservableList<String> historyTextList = FXCollections.observableArrayList();
 	
 	
 	@Override
@@ -47,8 +47,9 @@ public class History implements Serializable {
 		return false;
 	}
 	
-	public String save(String name) {
-		String path = "E:/replay/" + name + new SimpleDateFormat("_yyyy_MM_dd_(HH_mm_ss)").format(new Date()) + ".rep";
+	public String save(String dicPath) {
+		String path = dicPath + "/" + (Main.isBlackPlayer ? "black" : "white")
+				+ new SimpleDateFormat("_yyyy_MM_dd_(HH_mm_ss)").format(new Date()) + ".rep";
 		System.out.println(path);
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)));
@@ -64,6 +65,8 @@ public class History implements Serializable {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(path)));
 			readObject(ois);
+			history.forEach(item ->
+					historyTextList.add(item.behavior + (item.behavior.equals("capture") ? ": some chesses" : ": " + item.coord.toString())));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

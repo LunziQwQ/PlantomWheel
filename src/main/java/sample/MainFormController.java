@@ -29,7 +29,7 @@ public class MainFormController {
 	private GraphicsContext captureGC;
 	
 	private Strategies strategies = new Strategies();
-	private History history = new History();
+	private History history;
 	
 	@FXML
 	private Label actionLabel;
@@ -70,8 +70,12 @@ public class MainFormController {
 		//Always get the mouse position
 	void getMousePos(MouseEvent event) {
 		mousePos = new Coord((int) event.getX(), (int) event.getY());
-		Main.gameStage.setTitle("PlantomWheel  --> " + (Main.isBlackPlayer ? "Black" : "White") + " player" +
-				"   --> MousePos: " + mousePos.toNumString());
+		if (Main.isAiMode) {
+			Main.gameStage.setTitle("PlantomWheel --> " + (Main.isBlackPlayer ? "Black" : "White") + " player" +
+					"   --> MousePos: " + mousePos.toNumString());
+		} else {
+			Main.gameStage.setTitle("PlantomWheel --> " + "Replay" + "   --> MousePos: " + mousePos.toNumString());
+		}
 	}
 	
 	@FXML
@@ -230,6 +234,23 @@ public class MainFormController {
 	}
 	
 	public void initialize() {
+		history = Main.history;
+		if (Main.isAiMode) {
+			console.appendText("Game is start. I'm " + (Main.isBlackPlayer ? "black player" : "white player") + "\n");
+		} else {
+			nowStatus.setValue("Replaying...");
+			getStepBtn.setDisable(true);
+			captureBtn.setDisable(true);
+			console.setVisible(false);
+			historyListView.setVisible(true);
+			reviewCheckBox.setSelected(true);
+			reviewCheckBox.setDisable(true);
+			console.appendText("Replay mode.\n");
+			if (history.history.size() > 0) {
+				historyListView.getSelectionModel().select(history.history.size() - 1);
+				historyIsSelected();
+			}
+		}
 		//Make the console always scroll to the bottom
 		this.console.textProperty().addListener(
 				(ObservableValue<? extends String> observableValue, String oldValue, String newValue)
@@ -242,9 +263,10 @@ public class MainFormController {
 		drawChessBoardBase();
 		stepCountLabel.textProperty().bind(stepCount);
 		actionLabel.textProperty().bind(nowStatus);
-		console.appendText("Game is start. I'm " + (Main.isBlackPlayer ? "black player" : "white player") + "\n");
 		
 	}
+	
+	
 	
 	private void drawChessBoardBase() {
 		double
