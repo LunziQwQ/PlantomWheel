@@ -15,8 +15,8 @@ public class HistoryStep implements Serializable {
 	Coord coord;
 	String behavior;
 	
-	public HistoryStep(Coord coord,String behavior, Chess[][] board) {
-		if(this.coord != null) this.coord = new Coord(coord);
+	HistoryStep(Coord coord,String behavior, Chess[][] board) {
+		if(coord != null) this.coord = new Coord(coord);
 		this.behavior = behavior;
 		try {
 			this.board = ChessBoard.cloneBoard(board);

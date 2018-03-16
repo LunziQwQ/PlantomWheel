@@ -3,7 +3,6 @@ import org.junit.Test;
 import sample.ChessBoard;
 import sample.Coord;
 import sample.History;
-import sample.HistoryStep;
 
 /**
  * ***********************************************
@@ -20,15 +19,15 @@ public class TestHistory {
 		History history = new History();
 		
 		ChessBoard.getChess(new Coord(5, 5)).setChess('b');
-		history.history.add(new HistoryStep(new Coord(5, 5), "legal", ChessBoard.board));
+		history.addStep(new Coord(5, 5), "legal");
 		
 		ChessBoard.getChess(new Coord(3, 5)).setChess('w');
-		history.history.add(new HistoryStep(new Coord(5, 5), "legal", ChessBoard.board));
+		history.addStep(new Coord(5, 5), "legal");
 		
 		ChessBoard.getChess(new Coord(5,6)).setChess('?');
-		history.history.add(new HistoryStep(new Coord(5, 5), "illegal", ChessBoard.board));
+		history.addStep(new Coord(5, 5), "illegal");
 		
-		String path = history.save("test");
+		String path = history.save("/home/Lunzi/Downloads/replay/");
 		Assert.assertNotNull(path);
 		
 		History forLoad = new History();

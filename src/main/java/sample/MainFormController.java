@@ -235,22 +235,7 @@ public class MainFormController {
 	
 	public void initialize() {
 		history = Main.history;
-		if (Main.isAiMode) {
-			console.appendText("Game is start. I'm " + (Main.isBlackPlayer ? "black player" : "white player") + "\n");
-		} else {
-			nowStatus.setValue("Replaying...");
-			getStepBtn.setDisable(true);
-			captureBtn.setDisable(true);
-			console.setVisible(false);
-			historyListView.setVisible(true);
-			reviewCheckBox.setSelected(true);
-			reviewCheckBox.setDisable(true);
-			console.appendText("Replay mode.\n");
-			if (history.history.size() > 0) {
-				historyListView.getSelectionModel().select(history.history.size() - 1);
-				historyIsSelected();
-			}
-		}
+
 		//Make the console always scroll to the bottom
 		this.console.textProperty().addListener(
 				(ObservableValue<? extends String> observableValue, String oldValue, String newValue)
@@ -264,6 +249,22 @@ public class MainFormController {
 		stepCountLabel.textProperty().bind(stepCount);
 		actionLabel.textProperty().bind(nowStatus);
 		
+		if (Main.isAiMode) {
+			console.appendText("Game is start. I'm " + (Main.isBlackPlayer ? "black player" : "white player") + "\n");
+		} else {
+			nowStatus.setValue("Replaying...");
+			getStepBtn.setDisable(true);
+			captureBtn.setDisable(true);
+			console.setVisible(false);
+			historyListView.setVisible(true);
+			reviewCheckBox.setSelected(true);
+			reviewCheckBox.setDisable(true);
+			console.appendText("Replay mode.\n");
+			if (history.history.size() > 0) {
+				historyListView.getSelectionModel().select(history.history.size() - 1);
+				Platform.runLater(() -> drawChessBoard(history.history.get(history.history.size() - 1).board));
+			}
+		}
 	}
 	
 	

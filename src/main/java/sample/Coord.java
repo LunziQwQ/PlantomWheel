@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class Coord implements Serializable {
 	int x, y;
-	private int[][] near4Coords = {
+	transient private int[][] near4Coords = {
 			{0, 1}, {1, 0}, {0, -1}, {-1, 0}
 	};
-	private int[][] near8Coords = {
+	transient private int[][] near8Coords = {
 			{+1, 0}, {+1, +1}, {0, +1}, {-1, +1},
 			{-1, 0}, {-1, -1}, {0, -1}, {+1, -1}
 	};
-	private int[][] near16Coords = {
+	transient private int[][] near16Coords = {
 			{-2, 2}, {-1, 2}, {0, 2}, {1, 2},
 			{2, 2}, {2, 1}, {2, 0}, {2, -1},
 			{2, -2}, {1, -2}, {0, -2}, {-1, -2},
@@ -28,8 +28,8 @@ public class Coord implements Serializable {
 	};
 	
 	@Override
-	protected Object clone() {
-		return new Coord(this);
+	protected Coord clone() throws CloneNotSupportedException {
+		return ((Coord) super.clone());
 	}
 	
 	public Coord(int x, int y) {

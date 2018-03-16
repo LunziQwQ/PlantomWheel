@@ -164,11 +164,10 @@ public class Chess implements Serializable, Cloneable {
 	}
 	
 	@Override
-	protected Object clone() {
-		Chess temp = new Chess((Coord) this.coord.clone(), this.status);
-		temp.health = this.health;
-//		if (this.group != null) temp.group = (Group)this.group.clone();
-		return temp;
+	protected Chess clone() throws CloneNotSupportedException {
+		Chess clone = (Chess) super.clone();
+		clone.group = null;
+		return clone;
 	}
 	
 	@Override
