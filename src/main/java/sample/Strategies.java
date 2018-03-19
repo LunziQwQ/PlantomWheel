@@ -1,10 +1,7 @@
 package sample;
 
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -173,6 +170,7 @@ public class Strategies {
 	 * 1、遍历整个棋盘，遇到敌方棋子，检测生命值是否仅剩1，是则尝试提子
 	 * 2、遍历整个棋盘，遇到敌方棋子，检测两格范围内是否有友方棋子，有则从最近的友方棋子开始伸展包围
 	 * 3、
+	 *
 	 * @return 基于进攻策略的落子坐标，若策略不可用返回null
 	 */
 	private Coord offensive() {
@@ -313,12 +311,12 @@ public class Strategies {
 		return null;
 	}
 	
-	/**TODO：Finish it
+	/**
 	 * 防御策略
 	 * 1、遍历整个棋盘，寻找友方棋子
-	 *      1.1 - 若友方棋子为独子，寻找周围8个坐标是否存在友方棋子，若存在则连接起来
-	 *      1.2 - 若友方棋子为group且该group并不确定存活，遍历所有liberty，逐一检查，在周围存在最多友方棋子的liberty周围完成为活眼
-	 *      1.3 - 若友方棋子为group且该group确定存活，遍历group所有Chess，逐一检查每个Chess两格内是否存在友方非必定存活棋子，若存在尝试连接
+	 * 1.1 - 若友方棋子为独子，寻找周围8个坐标是否存在友方棋子，若存在则连接起来
+	 * 1.2 - 若友方棋子为group且该group并不确定存活，遍历所有liberty，逐一检查，在周围存在最多友方棋子的liberty周围完成为活眼
+	 * 1.3 - 若友方棋子为group且该group确定存活，遍历group所有Chess，逐一检查每个Chess两格内是否存在友方非必定存活棋子，若存在尝试连接
 	 * @return 基于进攻策略的落子坐标，若策略不可用返回null
 	 */
 	private Coord defensive() {
@@ -341,42 +339,95 @@ public class Strategies {
 								}
 							}
 						}
-					}
-				}
-			}
-		}
-		
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				Chess temp = ChessBoard.board[i][j];
-				if (temp.status == 'e') {
-					long friendNearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-					if (friendNearCount >= (long) ChessBoard.getChesses(temp.coord.getNear4Coord(true)).size() - 2) {
-						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear4Coord(true))) {
-							if (chess.status == 'e') {
-								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
-									return chess.coord;
-								}
+					} else {        //temp.group != null
+						if (temp.group.totallyAlive) {
+							for (Chess chess : temp.group.chesses) {
+								Optional<Chess> result = ChessBoard.getChesses(chess.coord.getNear8Coord(true)).stream()
+										.filter(c -> c.status == myStatus
+												&& (c.group == null || !c.group.totallyAlive)
+												&& getTheWay(chess.coord, c.coord) != null)
+										.findAny();
+								if (result.isPresent()) return getTheWay(chess.coord, result.get().coord);
 							}
-						}
-					}
-					friendNearCount = ChessBoard.getChesses(temp.coord.getNear8Coord(true)).stream().filter(x -> x.status == myStatus).count();
-					if (friendNearCount < (long) ChessBoard.getChesses(temp.coord.getNear8Coord(true)).size() - 1) {
-						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear8Coord(true))) {
-							if (chess.status == 'e') {
-								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
-									return chess.coord;
+						} else {    //temp.group.totallyAlive = false
+							List<Chess> sortList = new ArrayList<>(temp.group.libertys);
+							sortList.sort((c1, c2) -> Long.compare(
+									ChessBoard.getChesses(c1.coord.getNear8Coord(true)).stream()
+											.filter(c -> c.status == myStatus).count(),
+									ChessBoard.getChesses(c2.coord.getNear8Coord(true)).stream()
+											.filter(c -> c.status == myStatus).count()
+							));
+							for (Chess chess : sortList) {
+								for (Chess x : ChessBoard.getChesses(chess.coord.getNear4Coord(true))) {
+									if (x.canSet(Main.isBlackPlayer)) {
+										return x.coord;
+									}
 								}
 							}
 						}
 					}
 				}
-				
 			}
 		}
 		return null;
+
+
+//		旧版防御策略
+//
+//		for (int i = 0; i < 9; i++) {
+//			for (int j = 0; j < 9; j++) {
+//				Chess temp = ChessBoard.board[i][j];
+//				if (temp.status == 'e') {
+//					long friendNearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//					if (friendNearCount >= (long) ChessBoard.getChesses(temp.coord.getNear4Coord(true)).size() - 2) {
+//						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear4Coord(true))) {
+//							if (chess.status == 'e') {
+//								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
+//									return chess.coord;
+//								}
+//							}
+//						}
+//					}
+//					friendNearCount = ChessBoard.getChesses(temp.coord.getNear8Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//					if (friendNearCount < (long) ChessBoard.getChesses(temp.coord.getNear8Coord(true)).size() - 1) {
+//						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear8Coord(true))) {
+//							if (chess.status == 'e') {
+//								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
+//									return chess.coord;
+//								}
+//							}
+//						}
+//					}
+//				}
+//
+//			}
+//		}
+	}
+	
+	/**
+	 * 获取连接起始点和目标点之间的可用坐标
+	 * @param start  起始点坐标
+	 * @param target 目标点坐标
+	 * @return 起始点到目标点路径上的靠近起始点的坐标，若无可用坐标返回null
+	 */
+	private Coord getTheWay(Coord start, Coord target) {
+		Coord result;
+		int dirx = target.x - start.x;
+		int diry = target.y - start.y;
+		dirx /= Math.abs(dirx);
+		diry /= Math.abs(diry);
+		result = new Coord(start.x + dirx, start.y);
+		if (ChessBoard.getChess(result).canSet(Main.isBlackPlayer)) {
+			return result;
+		}
+		result = new Coord(start.x, start.y + diry);
+		if (ChessBoard.getChess(result).canSet(Main.isBlackPlayer)) {
+			return result;
+		}
+		return null;
+		
 	}
 	
 	private int[][] getAreaScore(boolean isMyStatus) {
