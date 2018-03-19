@@ -17,7 +17,7 @@ public class ChessBoard {
 		Chess[][] temp = new Chess[9][9];
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
-				temp[i][j] = (Chess) srcBoard[i][j].clone();
+				temp[i][j] = srcBoard[i][j].clone();
 			}
 		}
 		return temp;
@@ -41,7 +41,6 @@ public class ChessBoard {
 	}
 	
 	public ChessBoard() {
-		int size = 9;
 		board = new Chess[9][9];
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
@@ -59,7 +58,5 @@ public class ChessBoard {
 		coords.forEach(x -> result.add(getChess(x)));
 		return result;
 	}
-	
-	
 }
 

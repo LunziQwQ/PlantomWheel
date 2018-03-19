@@ -21,11 +21,6 @@ public class Chess implements Serializable, Cloneable {
 		this.status = status;
 	}
 	
-	private Chess(Coord coord, char status) {
-		this.coord = coord;
-		this.status = status;
-	}
-	
 	//更新本棋子的信息
 	public void update() {
 		if (status == 'b' || status == 'w') {
