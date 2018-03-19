@@ -61,7 +61,6 @@ public class Strategies {
 	
 	/**
 	 * 静态开局策略
-	 *
 	 * @return 策略所得的坐标
 	 */
 	private Coord staticOpen() {
@@ -76,7 +75,6 @@ public class Strategies {
 	
 	/**
 	 * 自动选择不同策略得到落子坐标
-	 *
 	 * @return 通过策略得到的落子坐标，所有策略不可用时返回null
 	 */
 	Coord getStep() {
@@ -111,7 +109,6 @@ public class Strategies {
 	
 	/**
 	 * 检查棋盘上是否有未知敌方坐标，若存在返回距离其他己方棋子最近的探测坐标
-	 *
 	 * @return 最优的探测坐标，若无位置地方坐标或无合适探测位置返回null
 	 */
 	private Coord checkUnknown() {
@@ -169,8 +166,6 @@ public class Strategies {
 	 * 进攻策略
 	 * 1、遍历整个棋盘，遇到敌方棋子，检测生命值是否仅剩1，是则尝试提子
 	 * 2、遍历整个棋盘，遇到敌方棋子，检测两格范围内是否有友方棋子，有则从最近的友方棋子开始伸展包围
-	 * 3、
-	 *
 	 * @return 基于进攻策略的落子坐标，若策略不可用返回null
 	 */
 	private Coord offensive() {
@@ -370,40 +365,6 @@ public class Strategies {
 			}
 		}
 		return null;
-
-
-//		旧版防御策略
-//
-//		for (int i = 0; i < 9; i++) {
-//			for (int j = 0; j < 9; j++) {
-//				Chess temp = ChessBoard.board[i][j];
-//				if (temp.status == 'e') {
-//					long friendNearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-//					if (friendNearCount >= (long) ChessBoard.getChesses(temp.coord.getNear4Coord(true)).size() - 2) {
-//						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear4Coord(true))) {
-//							if (chess.status == 'e') {
-//								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-//								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
-//									return chess.coord;
-//								}
-//							}
-//						}
-//					}
-//					friendNearCount = ChessBoard.getChesses(temp.coord.getNear8Coord(true)).stream().filter(x -> x.status == myStatus).count();
-//					if (friendNearCount < (long) ChessBoard.getChesses(temp.coord.getNear8Coord(true)).size() - 1) {
-//						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear8Coord(true))) {
-//							if (chess.status == 'e') {
-//								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
-//								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
-//									return chess.coord;
-//								}
-//							}
-//						}
-//					}
-//				}
-//
-//			}
-//		}
 	}
 	
 	/**
@@ -430,6 +391,11 @@ public class Strategies {
 		
 	}
 	
+	/**
+	 * 获得以3*3区域为单位的九个区域的综合评分
+	 * @param isMyStatus 基于己方的评分 or 基于敌方的评分
+	 * @return 一个3*3的评分数组 int[3][3]
+	 */
 	private int[][] getAreaScore(boolean isMyStatus) {
 		int[][] areaScore = new int[3][3];
 		for (int mid_i = 0; mid_i < 3; mid_i++) {
@@ -448,6 +414,12 @@ public class Strategies {
 		return areaScore;
 	}
 	
+	/**
+	 * 基于每个midArea的Fuzzy函数
+	 * @param midX midArea在整个棋盘上的x坐标
+	 * @param midY midArea在整个棋盘上的y坐标
+	 * @return 基于Fuzzy策略在这个midArea里的返回结果，若策略全不可用返回null
+	 */
 	private Coord fuzzyMidArea(int midX, int midY) {
 		int directionX = midX - 1;
 		int directionY = midY - 1;
@@ -490,6 +462,13 @@ public class Strategies {
 		return null;
 	}
 	
+	/**
+	 * 检查一个midArea集合，以及占领完成的评分下限。
+	 * 逐一计算每个midArea是否达到评分下限，若未达到，对此midArea执行Fuzzy策略
+	 * @param midSet 需要检查的midArea集合
+	 * @param completeCount 该类midArea集合的完成评分下限
+	 * @return 基于Fuzzy策略选择的这些midArea的返回结果，若策略全不可用返回null
+	 */
 	private Coord checkMidSet(int[][] midSet, int completeCount) {
 		int[][] myAreaScore = getAreaScore(true);
 		int[][] enemyAreaScore = getAreaScore(false);
@@ -505,6 +484,14 @@ public class Strategies {
 		return null;
 	}
 	
+	/**
+	 * Fuzzy策略，基于分数评估的模糊势力分布策略
+	 * 1、将9*9盘的棋盘分为3*3个3*3大小的midArea
+	 * 2、针对每个midArea进行敌我棋子数量统计，进行评分
+	 * 3、根据评分，尝试侵占未被敌方占领且我方棋子数量不足下限的midArea
+	 * 4、优先角落、其次边、最后中心，不同的midArea拥有不同的分数下限
+	 * @return 基于Fuzzy策略选择的返回结果，若策略不可用返回null
+	 */
 	private Coord fuzzy() {
 		Coord result;
 		
@@ -524,11 +511,6 @@ public class Strategies {
 		
 		return null;
 	}
-	
-	//进攻型策略，围杀，当得到Oops或oops指令时，激活offensiveFlag，若无可落子进攻位置，取消flag，采用其他策略
-	//TODO: 防御性策略，扫描自己的气与Group，尽可能的连接group，在不存在两个活眼的地方补子
-	//FIXME: 测试发现的特殊情况，当尝试落子自身group的最后一个气眼失败时，认定为敌方棋子（加判定or防止填眼）、建议后者
-	//FIXME: 进攻flag可以让策略函数自行检测，不需要手动维护flag
 }
 
 /* 旧版Fuzzy函数
@@ -615,4 +597,35 @@ public class Strategies {
 	}
  */
 
-
+//		旧版防御策略
+//
+//		for (int i = 0; i < 9; i++) {
+//			for (int j = 0; j < 9; j++) {
+//				Chess temp = ChessBoard.board[i][j];
+//				if (temp.status == 'e') {
+//					long friendNearCount = ChessBoard.getChesses(temp.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//					if (friendNearCount >= (long) ChessBoard.getChesses(temp.coord.getNear4Coord(true)).size() - 2) {
+//						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear4Coord(true))) {
+//							if (chess.status == 'e') {
+//								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
+//									return chess.coord;
+//								}
+//							}
+//						}
+//					}
+//					friendNearCount = ChessBoard.getChesses(temp.coord.getNear8Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//					if (friendNearCount < (long) ChessBoard.getChesses(temp.coord.getNear8Coord(true)).size() - 1) {
+//						for (Chess chess : ChessBoard.getChesses(temp.coord.getNear8Coord(true))) {
+//							if (chess.status == 'e') {
+//								long chessFriendNearCount = ChessBoard.getChesses(chess.coord.getNear4Coord(true)).stream().filter(x -> x.status == myStatus).count();
+//								if (chessFriendNearCount < (long) ChessBoard.getChesses(chess.coord.getNear4Coord(true)).size() - 1) {
+//									return chess.coord;
+//								}
+//							}
+//						}
+//					}
+//				}
+//
+//			}
+//		}
