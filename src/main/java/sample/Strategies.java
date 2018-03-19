@@ -16,10 +16,10 @@ public class Strategies {
 	 * 策略参数设置
 	 */
 	private final int
-			centerCompleteCount = 7,    //中心3*3区域的彻底占领棋子数
-			sideCompleteCount = 6,      //四个边3*3区域的彻底占领棋子数
-			angleCompleteCount = 5,     //四个角3*3区域的彻底占领棋子数
-			defenciveOpenStep = 27;     //总步数多少步后强制启动defencive策略
+			centerCompleteCount = 6,    //中心3*3区域的彻底占领棋子数
+			sideCompleteCount = 5,      //四个边3*3区域的彻底占领棋子数
+			angleCompleteCount = 4,     //四个角3*3区域的彻底占领棋子数
+			defenciveOpenStep = 32;     //总步数多少步后强制启动defencive策略
 	
 	private Random random;
 	
@@ -87,6 +87,12 @@ public class Strategies {
 			if (tempStep != null) return tempStep;
 		}
 		
+		//尝试使用提子策略
+		tempStep = capture();
+		if (capture() != null) {
+			return tempStep;
+		}
+		
 		//尝试检查是否存在未知敌方坐标（绘制问号的坐标），探测具体信息
 		tempStep = checkUnknown();
 		if (checkUnknown() != null)
@@ -122,7 +128,6 @@ public class Strategies {
 				});
 				
 				if (item.status == '?') {
-					Coord nearest = null;  //距离己方棋子最近的near4坐标
 					for (Chess x : ChessBoard.getChesses(item.coord.getNear4Coord(true))) {
 						if (x.status == 'e') {
 							if (ChessBoard.getChesses(x.coord.getNear8Coord(true))
@@ -147,7 +152,6 @@ public class Strategies {
 	
 	/**
 	 * 获取棋盘上未知敌方棋子
-	 *
 	 * @return 未知敌方棋子的List，若无未知敌方棋子返回null
 	 */
 	private List<Chess> getUnknownList() {
@@ -163,13 +167,11 @@ public class Strategies {
 	}
 	
 	/**
-	 * 进攻策略
-	 * 1、遍历整个棋盘，遇到敌方棋子，检测生命值是否仅剩1，是则尝试提子
-	 * 2、遍历整个棋盘，遇到敌方棋子，检测两格范围内是否有友方棋子，有则从最近的友方棋子开始伸展包围
-	 * @return 基于进攻策略的落子坐标，若策略不可用返回null
+	 * 提子策略
+	 * 1、扫描棋盘上地方生命值仅为1的棋子，尝试提子
+	 * @return 基于提子策略的结果，若策略不可用返回null
 	 */
-	private Coord offensive() {
-		
+	private Coord capture() {
 		//搜索整个棋盘的敌方棋子，若可提子，返回能提子的坐标
 		for (Chess[] chesses : ChessBoard.board) {
 			for (Chess item : chesses) {
@@ -187,6 +189,15 @@ public class Strategies {
 				}
 			}
 		}
+		return null;
+	}
+	
+	/**
+	 * 进攻策略
+	 * 1、遍历整个棋盘，遇到敌方棋子，检测两格范围内是否有友方棋子，有则从最近的友方棋子开始伸展包围
+	 * @return 基于进攻策略的落子坐标，若策略不可用返回null
+	 */
+	private Coord offensive() {
 		
 		//遍历整个棋盘的地方棋子
 		for (Chess[] chesses : ChessBoard.board) {
